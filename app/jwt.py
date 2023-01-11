@@ -6,8 +6,6 @@ import time
 
 
 def getSignature(base64Header,base64Payload,secret):
-    # print
-
     block = base64Header.decode('utf-8') + "." + base64Payload.decode('utf-8')
     digest = hmac.new(bytes(secret,'utf-8'),block.encode('utf-8'), digestmod = hashlib.sha256).digest()
     # Digest sometimes returns non alphanumeric characters
