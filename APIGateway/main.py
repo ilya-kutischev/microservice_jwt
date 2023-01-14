@@ -70,11 +70,11 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
     return db_user
 
 
-# @app.post("/users/{user_id}/items/", response_model=schemas.Item)
-# def create_item_for_user(
-#     user_id: int, item: schemas.ItemCreate, db: Session = Depends(get_db)
-# ):
-#     return crud.create_user_item(db=db, item=item, user_id=user_id)
+@app.post("/users/{user_id}/items/", response_model=schemas.Item)
+def create_item_for_user(
+    user_id: int, item: schemas.ItemCreate, db: Session = Depends(get_db)
+):
+    return crud.create_user_item(db=db, item=item, user_id=user_id)
 
 
 @app.post("/token", response_model=schemas.Token)
@@ -110,7 +110,7 @@ async def get_current_user(access_token: str,db: Session = Depends(get_db)):
     return crud.get_user_notes(db,db_user)
 
 @app.post("/user/notes")
-async def post_user_note(request:Request,access_token:str,title:str, description:str,db: Session = Depends(get_db)):
+async def post_user_items(request:Request,access_token:str,title:str, description:str,db: Session = Depends(get_db)):
 
     print("TOKEN:",access_token)
     email=security.get_current_user_email(access_token)
