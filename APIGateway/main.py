@@ -1,4 +1,6 @@
+import asyncio
 from typing import List
+
 from fastapi import Depends, FastAPI, HTTPException,Request
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
@@ -9,6 +11,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime, timedelta
 import re
 from fastapi import APIRouter
+
+from kafka_connector import produce_message, AsyncConsumer
 
 router = APIRouter()
 
@@ -42,6 +46,29 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+@app.on_event("startup")
+async def startup_event():
+    try:
+        aio_consumer = AsyncConsumer()
+        loop = asyncio.get_running_loop()
+        loop.create_task(aio_consumer.consume())
+
+    except (KeyboardInterrupt, SystemExit):
+        print("Stats consumer FAILED")
+
+
+@app.post("/send/")
+async def send(request:Request):
+    try:
+
+        await produce_message()
+    except:
+        raise HTTPException(status_code=500, detail="Kafka threw exception")
+
+
+
 
 
 @app.post("/users/", response_model=schemas.User)

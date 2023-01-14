@@ -93,14 +93,6 @@ services:
 #      MONGO_INITDB_ROOT_PORT: 27017
 
 
-
-
-
-
-
-
-
-
 volumes:
   postgres_data:
     driver: local

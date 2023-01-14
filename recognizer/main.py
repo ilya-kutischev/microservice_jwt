@@ -1,11 +1,16 @@
-from fastapi import Depends, FastAPI, HTTPException,Request
+from cv2 import cv2
+import numpy as np
+from fastapi import Depends, FastAPI, HTTPException, Request, UploadFile, File
 from fastapi import APIRouter
 import asyncio
 import pymongo
 from fastapi import FastAPI
+from pydantic import BaseModel
 from starlette import status
 from starlette.responses import JSONResponse
 from kafka_connector import produce_message, AsyncConsumer
+
+from recognizer_model import photo_to_latex, model
 
 router = APIRouter()
 
@@ -50,3 +55,23 @@ async def startup_event():
     except (KeyboardInterrupt, SystemExit):
         print("Stats consumer FAILED")
 
+
+@app.get("/", tags=["root"])
+async def read_root() -> dict:
+
+    res = photo_to_latex("image.png", model)
+    return {"message": f"Welcome to our service. Your recognition: {res}"}
+
+class Analyzer(BaseModel):
+    filename: str
+    img_dimensions: str
+    encoded_img: str
+
+@app.post("/analyze")
+async def analyze_route(file: UploadFile = File(...)):
+    contents = await file.read()
+    nparr = np.fromstring(contents, np.uint8)
+    img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+    print("DONE SAVING")
+    res = photo_to_latex(img, model)
+    return {"message": f"Welcome to our service. Your recognition: {res}"}
