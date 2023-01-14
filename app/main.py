@@ -10,6 +10,15 @@ from datetime import datetime, timedelta
 from routers import files
 import re
 
+class Car:
+    def __init__(self):
+        self.get=3
+
+car = Car()
+# from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+
+
 # new comment
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -19,6 +28,10 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 app = FastAPI()
 
 app.include_router(files.router)
+
+# app.mount("/static", StaticFiles(directory="templates"), name="templates")
+
+templates = Jinja2Templates(directory="app/templates")
 
 origins = "*"
 
@@ -41,20 +54,22 @@ def get_db():
 
 
 @app.post("/users/", response_model=schemas.User)
-def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    print(user.email)
+def create_user(request:Request, user: schemas.UserCreate, db: Session = Depends(get_db)):
+    # print(user.email)
     regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
     db_user = crud.get_user_by_email(db, email=user.email)
     if (re.fullmatch(regex, user.email)==None):
         raise HTTPException(status_code=409, detail="Invalid Email Address")
     if db_user:
         raise HTTPException(status_code=409, detail="Email already registered")
-    return crud.create_user(db=db, user=user)
+    return templates.TemplateResponse("index.html",
+                                      {"request": request, "new_user": crud.create_user(db=db, user=user)})
 
 @app.get("/users/", response_model=List[schemas.User])
-def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def read_users(request:Request, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     users = crud.get_users(db, skip=skip, limit=limit)
-    return users
+    # return users
+    return  templates.TemplateResponse("index.html", {"request": request, "users": users})
 
 
 @app.get("/users/{user_id}", response_model=schemas.User)
