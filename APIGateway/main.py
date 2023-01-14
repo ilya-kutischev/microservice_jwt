@@ -7,9 +7,10 @@ from database import SessionLocal, engine
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime, timedelta
-from routers import files
 import re
+from fastapi import APIRouter
 
+router = APIRouter()
 
 
 
@@ -20,7 +21,7 @@ models.Base.metadata.create_all(bind=engine)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 app = FastAPI()
 
-app.include_router(files.router)
+app.include_router(router)
 
 
 origins = "*"
