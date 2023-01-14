@@ -1,4 +1,3 @@
-# 
 #FROM python:3.8-slim-buster
 FROM python:3.10.6
 
@@ -16,4 +15,4 @@ COPY / ./
 
 ENV PYTHONPATH /
 # 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001"]

@@ -3,7 +3,7 @@ import hashlib
 import json
 from datetime import datetime, timedelta
 from typing import Optional
-from app.jwt import encodeJWT, decodeJWT
+from jwt import encodeJWT, decodeJWT
 
 #THEN WILL MIGRATE TO .ENV
 SECRET_KEY = "fku&hf%468JHgdQ:,_=GvhC3Dh6k"
