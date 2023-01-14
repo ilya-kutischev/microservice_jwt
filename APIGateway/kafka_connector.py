@@ -26,20 +26,20 @@ class AsyncConsumer:
 
     async def consume(self):
         await self.consumer.start()
-        self.consumer.subscribe(pattern="search_stats")
+        self.consumer.subscribe(pattern="recognizer_gateway")
         try:
             async for msg in self.consumer:
                 logger.info(f'Message {msg} from {self.consumer}')
                 data = json.loads(msg.value)
                 new_data = {key: value for (key, value) in data.items()}
-                if msg.topic == "auth_search":
+                if msg.topic == "recognizer_gateway":
                     print(new_data)
         finally:
             await self.consumer.stop()
 
 
 """============================PRODUCER LOGIC==================================="""
-async def produce_message(topic="stats_auth", msg=None):
+async def produce_message(topic="gateway_recognizer", msg=None):
     key = b'test key'
     value = b'test value'
     if msg is None:
