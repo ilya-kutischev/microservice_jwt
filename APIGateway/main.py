@@ -1,7 +1,12 @@
 import asyncio
+import binascii
+import json
+import uuid
 from typing import List
 
-from fastapi import Depends, FastAPI, HTTPException,Request
+import numpy as np
+from cv2 import cv2
+from fastapi import Depends, FastAPI, HTTPException, Request, UploadFile, File
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 import crud, models, schemas,security
@@ -65,7 +70,22 @@ async def send(request:Request):
         raise HTTPException(status_code=500, detail="Kafka threw exception")
 
 
-
+@app.post("/analyze/")
+async def analyze_route(file: UploadFile = File(...)):
+    contents = await file.read()
+    # nparr = np.fromstring(contents, np.uint8)
+    # img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)  # нужно зашифровать и передать эту картинку на сервис обработки
+# пробуем request-response принип в кафке
+    request_id = str(uuid.uuid1())
+    data_to_produce = {"payload": str(binascii.hexlify(contents)), "request_id": request_id}
+    # data_to_produce = json.dumps(data_to_produce).encode("utf-8")
+    await produce_message("gateway_recognizer", data_to_produce)
+    #catching response
+    aio_consumer = AsyncConsumer()
+    loop = asyncio.get_running_loop()
+    response =await aio_consumer.consume_request(request_id)
+    # response = recovery_response(request_id) # тут принимаем от кафки ответ от сервиса
+    return {"message": f"Welcome to our service. Your recognition: {response}"}
 
 
 @app.post("/users/", response_model=schemas.User)
