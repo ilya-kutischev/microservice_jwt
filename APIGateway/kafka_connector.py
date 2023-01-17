@@ -37,11 +37,22 @@ class AsyncConsumer:
         finally:
             await self.consumer.stop()
 
+    async def consume_request(self, request_id):
+        await self.consumer.start()
+        self.consumer.subscribe(pattern="recognizer_gateway")
+        try:
+            async for msg in self.consumer:
+                data = json.loads(msg.value)
+                new_data = {key: value for (key, value) in data.items()}
+                if msg.topic == "recognizer_gateway" and new_data["request_id"] == request_id:
+                    await self.consumer.stop()
+                    return new_data["payload"]
+        finally:
+            await self.consumer.stop()
+
 
 """============================PRODUCER LOGIC==================================="""
 async def produce_message(topic="gateway_recognizer", msg=None):
-    key = b'test key'
-    value = b'test value'
     if msg is None:
         msg = {
                 "header": "Used to search",

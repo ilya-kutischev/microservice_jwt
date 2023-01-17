@@ -5,6 +5,8 @@ FROM python:3.10.6
 RUN apt-get update \
     && apt-get -y install libpq-dev gcc \
     && pip3 install psycopg2
+
+RUN apt-get install ffmpeg libsm6 libxext6  -y
 # 
 WORKDIR /code
 # 
