@@ -1,7 +1,8 @@
 import asyncio
 import binascii
 import json
-
+from hashlib import sha256
+import pymongo
 from Cryptodome.Cipher import AES
 from cv2 import cv2
 import numpy as np
@@ -10,6 +11,35 @@ import logging
 from recognizer_model import photo_to_latex, model
 
 logger = logging.getLogger('uvicorn.info')
+
+# connect to DB
+def cache_and_predict(img, model):
+    client = pymongo.MongoClient(
+        host="mongodb",
+        port=27017,
+    )
+    db = client["cache"]
+    data = db["data"]
+    print("cache COLLECTION CREATED ========================================    ")
+    # хешируем растр изображения чтобы уменьшить его размер
+    cache_img = sha256(img).digest() #переведем в цифры так как в бд нужно меньше места числу чем 16-ричной строке
+    search = data.find_one({"img": cache_img})
+    # ищем есть ли такое в базе и если уже есть то выдаем готовое предсказание
+    if search is None:
+        logger.info("В БД НЕТ КАРТИНКИ")
+        prediction = photo_to_latex(img, model)
+        cache = {
+            "img": cache_img,
+            "prediction": prediction
+        }
+        data.insert_one(cache)
+        return prediction
+
+    else:
+        logger.info("В БД ЕСТЬ КАРТИНКА")
+        # если база нашла предсказание то выдаем его
+        return search["prediction"]
+
 """============================CONSUMER LOGIC==================================="""
 
 
@@ -49,8 +79,12 @@ class AsyncConsumer:
                     contents = binascii.unhexlify(payload[2:-1])
                     nparr = np.fromstring(contents, np.uint8)
                     img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-                    res = photo_to_latex(img, model)
-                    logger.info("RES:", res)
+
+
+                    # res = photo_to_latex(img, model)
+                    res = cache_and_predict(img, model)
+
+                    logger.info(f"RES:  {res}")
                     message = {"payload": res, "request_id": request_id}
                     await produce_message(topic="recognizer_gateway", msg=message)
 
