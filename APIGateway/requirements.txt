@@ -10,3 +10,4 @@ opencv-python>=4.5.5.64,<4.5.5.65
 psycopg2-binary
 sqlalchemy
 python-multipart
+pycryptodomex
