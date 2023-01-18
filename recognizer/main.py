@@ -30,6 +30,14 @@ async def startup_event():
     except (KeyboardInterrupt, SystemExit):
         print("Stats consumer FAILED")
 
+    # подключаемся к монге и сосдаем Хеш индекс на поле с кешем картинок)
+    client = pymongo.MongoClient(
+        host="mongodb",
+        port=27017,
+    )
+    db = client["cache"]
+    collection = db["data"]
+    collection.create_index([("img", pymongo.HASHED)], name='search_index')
 
 @app.get("/", tags=["root"])
 async def read_root() -> dict:
