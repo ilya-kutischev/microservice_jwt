@@ -1,23 +1,18 @@
 from cv2 import cv2
 import numpy as np
-from fastapi import Depends, FastAPI, HTTPException, Request, UploadFile, File
+from fastapi import UploadFile, File
 from fastapi import APIRouter
 import asyncio
 import pymongo
 from fastapi import FastAPI
-from pydantic import BaseModel
 from starlette import status
 from starlette.responses import JSONResponse
 from kafka_connector import produce_message, AsyncConsumer
-
 from recognizer_model import photo_to_latex, model
 
 router = APIRouter()
-
 app = FastAPI()
-
 app.include_router(router)
-
 origins = "*"
 
 
@@ -58,14 +53,9 @@ async def startup_event():
 
 @app.get("/", tags=["root"])
 async def read_root() -> dict:
-
     res = photo_to_latex("image.png", model)
     return {"message": f"Welcome to our service. Your recognition: {res}"}
 
-class Analyzer(BaseModel):
-    filename: str
-    img_dimensions: str
-    encoded_img: str
 
 @app.post("/analyze")
 async def analyze_route(file: UploadFile = File(...)):

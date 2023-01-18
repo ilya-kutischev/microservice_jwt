@@ -1,16 +1,15 @@
 import asyncio
 import binascii
 import json
-
 from cv2 import cv2
 import numpy as np
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 import logging
-
 from recognizer_model import photo_to_latex, model
 
 logger = logging.getLogger('uvicorn.info')
 """============================CONSUMER LOGIC==================================="""
+
 
 class AsyncConsumer:
     def __init__(self):
@@ -29,16 +28,11 @@ class AsyncConsumer:
                 data = json.loads(msg.value)
                 new_data = {key: value for (key, value) in data.items()}
                 if msg.topic == "gateway_recognizer":
-                    # logger.info("HUMAN! I got data!")
-                    # logger.info(new_data)
                     payload = new_data["payload"]
                     request_id = new_data["request_id"]
-                    # logger.info("req:", request_id)
-                    # logger.info("payload:", str(payload))
                     contents = binascii.unhexlify(payload[2:-1])
                     nparr = np.fromstring(contents, np.uint8)
                     img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-                    # logger.info("img:",img)
                     res = photo_to_latex(img, model)
                     logger.info("RES:", res)
                     message = {"payload": res, "request_id": request_id}

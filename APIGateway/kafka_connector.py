@@ -1,20 +1,11 @@
 import asyncio
-import functools
 import json
-import logging
-import signal
-import sys
-import confluent_kafka
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
-
-from confluent_kafka import KafkaException
-from time import time
-from threading import Thread
-
 import logging
 
 logger = logging.getLogger('uvicorn.info')
 """============================CONSUMER LOGIC==================================="""
+
 
 class AsyncConsumer:
     def __init__(self):
@@ -52,6 +43,8 @@ class AsyncConsumer:
 
 
 """============================PRODUCER LOGIC==================================="""
+
+
 async def produce_message(topic="gateway_recognizer", msg=None):
     if msg is None:
         msg = {
