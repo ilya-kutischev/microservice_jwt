@@ -72,9 +72,37 @@ def get_user_notes(db: Session, user: schemas.User,skip: int = 0, limit: int = 1
         note["id"]=item.id
         note["title"] =  item.title
         note["description"] = item.description
+        note["picture"] = item.picture
+        note["latex"] = item.latex
         notes.append(note)
     return notes
 
+
+def get_note_by_pic(db: Session, user: schemas.User, picture):
+    items = db.query(models.Note).filter_by(owner_id=user.id, picture=picture)
+    notes = []
+    for item in items:
+        note = OrderedDict()
+        note["id"]=item.id
+        note["title"] =  item.title
+        note["description"] = item.description
+        note["picture"] = item.picture
+        note["latex"] = item.latex
+        notes.append(note)
+    return notes
+
+def get_note_by_id(db: Session, user: schemas.User, note_id:int):
+    items = db.query(models.Note).filter_by(owner_id=user.id, id=note_id)
+    notes = []
+    for item in items:
+        note = OrderedDict()
+        note["id"]=item.id
+        note["title"] =  item.title
+        note["description"] = item.description
+        note["picture"] = item.picture
+        note["latex"] = item.latex
+        notes.append(note)
+    return notes
 
 def delete_user_note(db: Session, note:dict):
     # note = json.loads(note)
