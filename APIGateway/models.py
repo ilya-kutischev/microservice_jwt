@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, LargeBinary, Index
 from sqlalchemy.orm import relationship
 import hashlib
 
@@ -14,26 +14,19 @@ class User(Base):
     salt= Column(String)
     is_active = Column(Boolean, default=True)
 
-    items = relationship("Item",back_populates="owner")
     notes = relationship("Note",back_populates="owner")
-    
 
-
-class Item(Base):
-    __tablename__ = "items"
-
-    id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, index=True)
-    description = Column(String, index=True)
-    owner_id = Column(Integer, ForeignKey("users.id"))
-
-    owner = relationship("User", back_populates="items")
 
 class Note(Base):
     __tablename__ = "notes"
 
     id = Column(Integer, primary_key=True,autoincrement=True)
-    title = Column(String, index=True)
-    description = Column(String, index=True)
+    title = Column(String)
+    description = Column(String)
+    picture = Column(String)
+    latex = Column(String, index=True)
+    # создаем хеш индекс по картинке
+    Index('my_index', latex, postgresql_using='hash')
+
     owner_id = Column(Integer, ForeignKey("users.id"))
     owner = relationship("User", back_populates="notes")

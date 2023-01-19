@@ -4,7 +4,9 @@ import json
 from hashlib import sha256
 import pymongo
 from Cryptodome.Cipher import AES
-from cv2 import cv2
+# from cv2 import cv2
+import cv2
+
 import numpy as np
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 import logging

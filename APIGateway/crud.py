@@ -6,10 +6,12 @@ from datetime import datetime, timedelta
 from typing import Optional, OrderedDict
 from jwt import *
 import json
-
 import models, schemas
+
+
 def get_user(db: Session, user_id: int):
     return db.query(models.User).filter(models.User.id == user_id).first()
+
 
 def get_user_by_email(db: Session, email: str):
     return db.query(models.User).filter(models.User.email == email).first()
@@ -17,6 +19,7 @@ def get_user_by_email(db: Session, email: str):
 
 def get_users(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.User).offset(skip).limit(limit).all()
+
 
 def create_user(db: Session, user: schemas.UserCreate):
     salt = os.urandom(32)
@@ -38,18 +41,6 @@ def create_user(db: Session, user: schemas.UserCreate):
     return db_user
 
 
-
-# def get_items(db: Session, skip: int = 0, limit: int = 100):
-#     return db.query(models.Item).offset(skip).limit(limit).all()
-
-
-
-# def create_user_item(db: Session, item: schemas.ItemCreate, user_id: int):
-#     db_item = models.Item(**item.dict(), owner_id=user_id)
-#     db.add(db_item)
-#     db.commit()
-#     db.refresh(db_item)
-#     return db_item
 def create_user_note(db:Session, note:dict):
     print(note)
     # note = json.loads(note)
@@ -58,6 +49,8 @@ def create_user_note(db:Session, note:dict):
     db.commit()
     db.refresh(db_item)
     return note
+
+
 def update_user_note(db:Session, note:dict):
     # print(note)
     # note = json.loads(note)
@@ -70,6 +63,7 @@ def update_user_note(db:Session, note:dict):
     db.refresh(updateObject)
     return note
 
+
 def get_user_notes(db: Session, user: schemas.User,skip: int = 0, limit: int = 100):
     items = db.query(models.Note).filter_by(owner_id=user.id).offset(skip).limit(limit).all()
     notes = []
@@ -78,6 +72,35 @@ def get_user_notes(db: Session, user: schemas.User,skip: int = 0, limit: int = 1
         note["id"]=item.id
         note["title"] =  item.title
         note["description"] = item.description
+        note["picture"] = item.picture
+        note["latex"] = item.latex
+        notes.append(note)
+    return notes
+
+
+def get_note_by_pic(db: Session, user: schemas.User, picture):
+    items = db.query(models.Note).filter_by(owner_id=user.id, picture=picture)
+    notes = []
+    for item in items:
+        note = OrderedDict()
+        note["id"]=item.id
+        note["title"] =  item.title
+        note["description"] = item.description
+        note["picture"] = item.picture
+        note["latex"] = item.latex
+        notes.append(note)
+    return notes
+
+def get_note_by_id(db: Session, user: schemas.User, note_id:int):
+    items = db.query(models.Note).filter_by(owner_id=user.id, id=note_id)
+    notes = []
+    for item in items:
+        note = OrderedDict()
+        note["id"]=item.id
+        note["title"] =  item.title
+        note["description"] = item.description
+        note["picture"] = item.picture
+        note["latex"] = item.latex
         notes.append(note)
     return notes
 
