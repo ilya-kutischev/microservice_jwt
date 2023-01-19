@@ -1,10 +1,13 @@
 import asyncio
 import binascii
+import logging
 import uuid
 from typing import List
 from fastapi import Depends, FastAPI, HTTPException, Request, UploadFile, File
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
+from starlette.responses import Response
+
 import crud, models, schemas,security
 from database import SessionLocal, engine
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -12,8 +15,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from datetime import timedelta
 import re
 from fastapi import APIRouter
+import base64
 
 from kafka_connector import produce_message, AsyncConsumer
+logger = logging.getLogger('uvicorn.info')
 
 router = APIRouter()
 
@@ -60,9 +65,10 @@ async def startup_event():
         print("Stats consumer FAILED")
 
 
-@app.post("/analyze/")
-async def analyze_route(file: UploadFile = File(...)):
-    contents = await file.read()
+# используем функцию для распознавания
+# @app.post("/analyze/")
+async def analyze_route(contents):
+    # contents = await file.read()
     # пробуем request-response принип в кафке
     request_id = str(uuid.uuid1())
     data_to_produce = {"payload": str(binascii.hexlify(contents)), "request_id": request_id}
@@ -71,7 +77,7 @@ async def analyze_route(file: UploadFile = File(...)):
     aio_consumer = AsyncConsumer()
     loop = asyncio.get_running_loop()
     response = await aio_consumer.consume_request(request_id)
-    return {"message": f"Welcome to our service. Your recognition: {response}"}
+    return response
 
 
 @app.post("/users/", response_model=schemas.User)
@@ -120,7 +126,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 
 
 @app.get("/user",response_model=schemas.User)
-async def get_current_user(token: str,db: Session = Depends(get_db)):
+async def get_current_user(token: str, db: Session = Depends(get_db)):
     email=security.get_current_user_email(token)
     db_user = crud.get_user_by_email(db, email=email)
     print(db_user)
@@ -128,24 +134,56 @@ async def get_current_user(token: str,db: Session = Depends(get_db)):
 
 
 @app.get("/user/notes")
-async def get_current_user(access_token: str,db: Session = Depends(get_db)):
-    print(access_token)
+async def get_current_user(access_token: str, db: Session = Depends(get_db)):
     email=security.get_current_user_email(access_token)
     db_user = crud.get_user_by_email(db, email=email)
+
     return crud.get_user_notes(db,db_user)
 
 
-@app.post("/user/notes")
-async def post_user_note(request:Request,access_token:str,title:str, description:str,db: Session = Depends(get_db)):
+@app.get("/user/notes/pic")
+async def get_current_user(access_token: str, note_id:int, db: Session = Depends(get_db)):
+    email = security.get_current_user_email(access_token)
+    db_user = crud.get_user_by_email(db, email=email)
+    note = crud.get_note_by_id(db, db_user, note_id)
+    try:
+        img = base64.b64decode((note[0])["picture"])
+    except IndexError:
+        return Response(content="Index out of range")
+    return Response(content=img, media_type="image/png")
 
+
+@app.post("/user/notes")
+async def post_user_note(
+        request:Request,
+        access_token:str,
+        title:str,
+        description:str,
+        picture: UploadFile = File(...),
+        db: Session = Depends(get_db)):
+    # reading file
+    picture = await picture.read()
     print("TOKEN:",access_token)
     email=security.get_current_user_email(access_token)
     print("EMAIL DONE")
     db_user = crud.get_user_by_email(db, email=email)
 
+
+    # не отправляем на распознавание картинку если у этого человека уже есть такие картинки в сохраненных
+    notes = crud.get_note_by_pic(db, db_user, base64.b64encode(picture).decode('ASCII'))
+    logger.info(type(notes))
+    if notes == []:
+        latex = await analyze_route(picture)
+    else:
+        latex = notes[0]["latex"]
+
+    # дальше создаем инстанс записки
     note = {
         "title":title,
         "description":description,
+        # тут я уже не знаю какой тип подставить, мб хекс подойдет в бд или Бас 64
+        "picture": str(base64.b64encode(picture).decode('ASCII')),
+        "latex":latex,
         "owner_id":db_user.id
             }
 
@@ -160,7 +198,6 @@ async def post_user_note(request:Request,access_token:str,title:str, description
 
 @app.put("/user/notes")
 async def update_user_note(request:Request,access_token:str,note_id:int,title:str, description:str,db: Session = Depends(get_db)):
-
     email=security.get_current_user_email(access_token)
     db_user = crud.get_user_by_email(db, email=email)
     note = {
