@@ -1,14 +1,12 @@
-from hashlib import sha256
+# from cv2 import cv2
+import cv2
 
-from cv2 import cv2
 import numpy as np
 from fastapi import UploadFile, File
 from fastapi import APIRouter
 import asyncio
 import pymongo
 from fastapi import FastAPI
-from starlette import status
-from starlette.responses import JSONResponse
 from kafka_connector import produce_message, AsyncConsumer
 from recognizer_model import photo_to_latex, model
 
