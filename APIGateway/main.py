@@ -7,12 +7,12 @@ from fastapi import Depends, FastAPI, HTTPException, Request, UploadFile, File
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from starlette.responses import Response
-
 import crud, models, schemas,security
 from database import SessionLocal, engine
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import timedelta
+import time
 import re
 from fastapi import APIRouter
 import base64
@@ -54,6 +54,7 @@ def get_db():
 @app.on_event("startup")
 async def startup_event():
     try:
+        time.sleep(15)
         aio_consumer = AsyncConsumer()
         loop = asyncio.get_running_loop()
         loop.create_task(aio_consumer.consume())

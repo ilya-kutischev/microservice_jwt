@@ -1,5 +1,16 @@
 version: '3'
 services:
+  nginx:
+    build:
+      context: nginx
+      dockerfile: nginx.Dockerfile
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - apigateway
+
+
   apigateway:
     container_name: docker-fastapi
     restart: always

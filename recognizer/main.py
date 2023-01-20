@@ -1,6 +1,6 @@
-# from cv2 import cv2
-import cv2
+import time
 
+import cv2
 import numpy as np
 from fastapi import UploadFile, File
 from fastapi import APIRouter
@@ -21,6 +21,7 @@ config = {"bootstrap.servers": "localhost:9092"}
 @app.on_event("startup")
 async def startup_event():
     try:
+        time.sleep(15)
         aio_consumer = AsyncConsumer()
         loop = asyncio.get_running_loop()
         loop.create_task(aio_consumer.consume())
