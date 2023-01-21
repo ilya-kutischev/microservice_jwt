@@ -1,6 +1,4 @@
-# from cv2 import cv2
 import cv2
-
 import numpy as np
 from fastapi import UploadFile, File
 from fastapi import APIRouter

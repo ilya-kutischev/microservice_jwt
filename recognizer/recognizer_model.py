@@ -1,5 +1,4 @@
-import numpy as np # linear algebra
-# from cv2 import cv2  # считывание и обработка изображений
+import numpy as np
 import cv2
 import keras
 
