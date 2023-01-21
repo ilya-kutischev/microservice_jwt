@@ -15,7 +15,7 @@ app = FastAPI()
 app.include_router(router)
 origins = "*"
 
-config = {"bootstrap.servers": "localhost:9092"}
+# config = {"bootstrap.servers": "localhost:9092"}
 
 
 @app.on_event("startup")

@@ -18,11 +18,18 @@ from fastapi import APIRouter
 import base64
 
 from kafka_connector import produce_message, AsyncConsumer
+from dotenv import load_dotenv
+import os
+
+dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+if os.path.exists(dotenv_path):
+    load_dotenv(dotenv_path)
+
 logger = logging.getLogger('uvicorn.info')
 
 router = APIRouter()
 
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = float(os.environ.get('ACCESS_TOKEN_EXPIRE_MINUTES'))
 
 
 models.Base.metadata.create_all(bind=engine)
@@ -72,7 +79,6 @@ async def analyze_route(contents):
     await produce_message("gateway_recognizer", data_to_produce)
     #catching response
     aio_consumer = AsyncConsumer()
-    loop = asyncio.get_running_loop()
     response = await aio_consumer.consume_request(request_id)
     return response
 
