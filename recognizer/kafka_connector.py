@@ -4,13 +4,17 @@ import json
 from hashlib import sha256
 import pymongo
 from Cryptodome.Cipher import AES
-# from cv2 import cv2
 import cv2
-
 import numpy as np
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 import logging
 from recognizer_model import photo_to_latex, model
+from dotenv import load_dotenv
+import os
+
+dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+if os.path.exists(dotenv_path):
+    load_dotenv(dotenv_path)
 
 logger = logging.getLogger('uvicorn.info')
 
@@ -63,7 +67,7 @@ class AsyncConsumer:
                 msg = msg.value
                 # here aes decoding of message
                 # generated secret key 512 bit, 32 byte, will migrate to .env
-                key = binascii.unhexlify("bb6eede04521f26fe160ca9f6f9930202b8b77cf3108368c4c90de0d9f8cc354")
+                key = binascii.unhexlify(os.environ.get('AES_KAFKA_KEY'))
                 tag = msg[:16]
                 nonce = msg[16:32]
                 ciphertext = msg[32:]
@@ -107,7 +111,7 @@ async def produce_message(topic="recognizer_gateway", msg=None):
 
     # here aes encoding of message
     #generated secret key 512 bit, 32 byte, will migrate to .env
-    key=binascii.unhexlify("bb6eede04521f26fe160ca9f6f9930202b8b77cf3108368c4c90de0d9f8cc354")
+    key=binascii.unhexlify(os.environ.get('AES_KAFKA_KEY'))
     cipher = AES.new(key, AES.MODE_EAX)
     ciphertext, tag = cipher.encrypt_and_digest(msg)
     nonce = cipher.nonce
