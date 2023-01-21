@@ -4,10 +4,17 @@ import json
 from datetime import datetime, timedelta
 from typing import Optional
 from jwt import encodeJWT, decodeJWT
+import os
+from dotenv import load_dotenv
+
+dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+if os.path.exists(dotenv_path):
+    load_dotenv(dotenv_path)
 
 #THEN WILL MIGRATE TO .ENV
-SECRET_KEY = "fku&hf%468JHgdQ:,_=GvhC3Dh6k"
-ALGORITHM = "HS256"
+SECRET_KEY = os.environ.get('SECRET_KEY')
+
+ALGORITHM = os.environ.get('ALGORITHM')
 
 
 def verify_hash(password,savedSalt):
