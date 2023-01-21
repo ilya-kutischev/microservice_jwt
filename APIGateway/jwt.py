@@ -14,11 +14,7 @@ def getSignature(base64Header,base64Payload,secret):
 
 def encodeJWT(data,key,algorithm):
   payload = data
-  # payload={
-  # "sub": "1234567890",
-  # "name": "John Doe",
-  # "iat": 1516239022
-  # }
+
   header = {
   "alg": algorithm,
   "typ": "JWT"
