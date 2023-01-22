@@ -1,17 +1,13 @@
 version: '3'
 services:
-#  frontend:
-#    build:
-#      context: frontend
-#      dockerfile: React.Dockerfile
-#    networks:
-#      - client-side
-#    ports:
-#      - 3000:3000
-#    volumes:
-#      - /var/run/docker.sock:/var/run/docker.sock
-#    depends_on:
-#      - apigateway
+  react-app:
+    build:
+      context: frontend
+      dockerfile: frontend.Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - apigateway
 
   apigateway:
     container_name: docker-fastapi
