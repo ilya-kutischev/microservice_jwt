@@ -28,7 +28,7 @@ if os.path.exists(dotenv_path):
 logger = logging.getLogger('uvicorn.info')
 
 router = APIRouter()
-
+# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 ACCESS_TOKEN_EXPIRE_MINUTES = float(os.environ.get('ACCESS_TOKEN_EXPIRE_MINUTES'))
 
 
@@ -95,13 +95,13 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     return crud.create_user(db=db, user=user)
 
 
-@app.get("/users/", response_model=List[schemas.User])
+# @app.get("/users/", response_model=List[schemas.User])
 def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     users = crud.get_users(db, skip=skip, limit=limit)
     return users
 
 
-@app.get("/users/{user_id}", response_model=schemas.User)
+# @app.get("/users/{user_id}", response_model=schemas.User)
 def read_user(user_id: int, db: Session = Depends(get_db)):
     db_user = crud.get_user(db, user_id=user_id)
     if db_user is None:
@@ -128,15 +128,16 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 
 
 @app.get("/user", response_model=schemas.User)
-async def get_current_user(token: str, db: Session = Depends(get_db)):
+async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     try:
         email=security.get_current_user_email(token)
     except TypeError:
         raise HTTPException(
-            status_code=401,
-            detail="Incorrect TOKEN",
+            status_code=404,
+            detail="User Not Found",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
 
     db_user = crud.get_user_by_email(db, email=email)
     print(db_user)
@@ -144,7 +145,7 @@ async def get_current_user(token: str, db: Session = Depends(get_db)):
 
 
 @app.get("/user/notes")
-async def get_current_user(access_token: str, db: Session = Depends(get_db)):
+async def get_current_user(access_token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     email=security.get_current_user_email(access_token)
     db_user = crud.get_user_by_email(db, email=email)
 
@@ -152,7 +153,7 @@ async def get_current_user(access_token: str, db: Session = Depends(get_db)):
 
 
 @app.get("/user/notes/pic")
-async def get_current_user(access_token: str, note_id:int, db: Session = Depends(get_db)):
+async def get_current_user(note_id: int,access_token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     email = security.get_current_user_email(access_token)
     db_user = crud.get_user_by_email(db, email=email)
     note = crud.get_note_by_id(db, db_user, note_id)
@@ -165,10 +166,9 @@ async def get_current_user(access_token: str, note_id:int, db: Session = Depends
 
 @app.post("/user/notes")
 async def post_user_note(
-        request:Request,
-        access_token:str,
         title:str,
         description:str,
+        access_token:str = Depends(oauth2_scheme),
         picture: UploadFile = File(...),
         db: Session = Depends(get_db)):
     # reading file
@@ -207,7 +207,7 @@ async def post_user_note(
 
 
 @app.put("/user/notes")
-async def update_user_note(request:Request,access_token:str,note_id:int,title:str, description:str,db: Session = Depends(get_db)):
+async def update_user_note(note_id:int,title:str, description:str,access_token:str = Depends(oauth2_scheme),db: Session = Depends(get_db)):
     email=security.get_current_user_email(access_token)
     db_user = crud.get_user_by_email(db, email=email)
     note = {
@@ -221,7 +221,7 @@ async def update_user_note(request:Request,access_token:str,note_id:int,title:st
 
 
 @app.delete("/user/notes")
-async def delete_user_items(request:Request,access_token:str,note_id:int,db: Session = Depends(get_db)):
+async def delete_user_items(note_id:int,access_token:str = Depends(oauth2_scheme),db: Session = Depends(get_db)):
     email=security.get_current_user_email(access_token)
     db_user = crud.get_user_by_email(db, email=email)
     note = {

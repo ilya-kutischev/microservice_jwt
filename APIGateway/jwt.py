@@ -14,7 +14,6 @@ def getSignature(base64Header,base64Payload,secret):
 
 def encodeJWT(data,key,algorithm):
   payload = data
-
   header = {
   "alg": algorithm,
   "typ": "JWT"
@@ -25,6 +24,7 @@ def encodeJWT(data,key,algorithm):
   sig = getSignature(base64Header,base64Payload,key)
   encodedJWT = base64Header.decode("utf-8")+"."+base64Payload.decode("utf-8")+"."+sig
   return encodedJWT
+
 
 def decodeJWT(access_token,key):
   header = access_token.split('.')[0]
@@ -39,3 +39,18 @@ def decodeJWT(access_token,key):
     return res
   else:
     return "Couldn't Verify Signature"
+
+# решил придерживаться KISS and DRY использовал встроенную зависимость oauth2 для проверки токена, это пусть будет для примера работы
+# def verifyJWT(access_token,key):
+#   header = access_token.split('.')[0]
+#   payload = access_token.split('.')[1]
+#   decodedPayload = base64.b64decode(payload)
+#   sig = getSignature(header.encode('utf-8'),payload.encode('utf-8'),key)
+#   res = {
+#     "payload":decodedPayload.decode('utf-8'),
+#     "verified":(sig==access_token.split('.')[2])
+#   }
+#   if(sig==access_token.split('.')[2]):
+#     return res
+#   else:
+#     raise ValueError("Couldn't Verify Signature")
