@@ -13,6 +13,7 @@ import {PostService} from "./API/PostService";
 import Loader from "./components/UI/loader/Loader";
 import {useFetching} from "./hooks/useFetching";
 import {getPageCount, getPagesArray} from "./utils/pages";
+import Pagination from "./components/UI/Pagination/Pagination";
 
 
 function App() {
@@ -24,9 +25,6 @@ function App() {
     const [limit, setLimit] = useState(10)
     const [page, setPage] = useState(1)
     const sortedAndSearchedPosts = usePosts(posts, filter.sort, filter.query)
-    const pagesArray = useMemo(() => {
-        return getPagesArray(totalPages)
-    }, [page, limit, sortedAndSearchedPosts])
 
     const [fetchPosts, loading, postError] = useFetching(async e => {
         const response = await PostService.getAll(limit, page)
@@ -34,6 +32,16 @@ function App() {
         const totalCount = response.headers['x-total-count']
         setTotalPages(getPageCount(totalCount, limit))
     })
+
+    const getPages =
+        useMemo(() => {
+            return getPagesArray(totalPages)
+        }, [totalPages])
+
+    useEffect(() => {
+        fetchPosts()
+    }, [page])
+
     const createPost = (newPost) => {
         setPosts([...posts, newPost])
         setModal(false)
@@ -44,15 +52,9 @@ function App() {
 
     }
 
-    useEffect(() => {
-        fetchPosts()
-    }, [page])
-
-
     const changePage = (page) => {
         setPage(page)
     }
-
 
     return (
         <div className="App">
@@ -73,14 +75,12 @@ function App() {
                 </div>
                 : <PostList posts={sortedAndSearchedPosts} title={"Посты про кайф"} remove={removePost}/>
             }
-            <div className="page__wrapper">
-                {
-                    pagesArray.map(p =>
-                        <span key={p} onClick={() => changePage(p)} className={p === page ? "page page__current" : "page"}>{p}</span>
-                    )
-                }
-            </div>
-
+            <Pagination
+                page={page}
+                totalPages={totalPages}
+                changePage={changePage}
+                getPages={getPages}
+            />
         </div>
     );
 }
