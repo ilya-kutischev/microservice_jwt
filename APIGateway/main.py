@@ -127,9 +127,17 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     return {"access_token": access_token}
 
 
-@app.get("/user",response_model=schemas.User)
+@app.get("/user", response_model=schemas.User)
 async def get_current_user(token: str, db: Session = Depends(get_db)):
-    email=security.get_current_user_email(token)
+    try:
+        email=security.get_current_user_email(token)
+    except TypeError:
+        raise HTTPException(
+            status_code=401,
+            detail="Incorrect TOKEN",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
     db_user = crud.get_user_by_email(db, email=email)
     print(db_user)
     return db_user
