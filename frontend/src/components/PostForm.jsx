@@ -6,7 +6,7 @@ const PostForm = ({create}) => {
 
     const [post, setPost] = useState({
         title: "",
-        text: ""
+        body: ""
     })
 
 
@@ -14,7 +14,7 @@ const PostForm = ({create}) => {
         e.preventDefault()
         const newPost = {...post, id: Date.now()}
         create(newPost)
-        setPost({title: "", text: ""})
+        setPost({title: "", body: ""})
     }
 
     return (
@@ -29,8 +29,8 @@ const PostForm = ({create}) => {
             <MyInput
                 type="text"
                 placeholder="Описание поста"
-                value={post.text}
-                onChange={(e) => setPost({...post, text: e.target.value})}
+                value={post.body}
+                onChange={(e) => setPost({...post, body: e.target.value})}
             />
             <MyButton
                 onClick={addNewPost}
