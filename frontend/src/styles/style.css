@@ -23,3 +23,20 @@
 #form {
     align-content: center;
 }
+
+
+.page__wrapper {
+    margin-top: 20px;
+    display: flex;
+}
+
+.page {
+    padding: 10px;
+    border: 1px solid blue;
+    cursor: pointer;
+}
+
+.page__current {
+    border: 2px solid yellow;
+    font-weight: bold;
+}

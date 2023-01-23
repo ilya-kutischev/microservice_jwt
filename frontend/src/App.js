@@ -11,50 +11,48 @@ import {usePosts, useSortedPosts} from "./hooks/usePosts";
 import axios from "axios";
 import {PostService} from "./API/PostService";
 import Loader from "./components/UI/loader/Loader";
-import useFetching from "./hooks/useFetching";
+import {useFetching} from "./hooks/useFetching";
+import {getPageCount, getPagesArray} from "./utils/pages";
+
 
 function App() {
-    const [posts, setPosts] = useState([
-        {id: 1, title: "Python", body: "кайф"},
-        {id: 2, title: "PHP", body: "кайф"},
-        {id: 3, title: "Go", body: "кайф"}
-    ])
+    const [posts, setPosts] = useState([])
 
     const [filter, setFilter] = useState({sort: "", query: ""})
     const [modal, setModal] = useState(false)
-    const [loading, setLoading] = useState(false)
+    const [totalPages, setTotalPages] = useState(0)
+    const [limit, setLimit] = useState(10)
+    const [page, setPage] = useState(1)
+    const sortedAndSearchedPosts = usePosts(posts, filter.sort, filter.query)
+    const pagesArray = useMemo(() => {
+        return getPagesArray(totalPages)
+    }, [page, limit, sortedAndSearchedPosts])
 
-    // const [] = useFetching(async () => {
-    //     const posts = await PostService.getAll()
-    //         setPosts(posts)
-    //         setLoading(false)
-    // })
-
+    const [fetchPosts, loading, postError] = useFetching(async e => {
+        const response = await PostService.getAll(limit, page)
+        setPosts(response.data)
+        const totalCount = response.headers['x-total-count']
+        setTotalPages(getPageCount(totalCount, limit))
+    })
     const createPost = (newPost) => {
         setPosts([...posts, newPost])
         setModal(false)
-    }
 
+    }
     const removePost = (post) => {
         setPosts(posts.filter(p => p.id !== post.id))
-    }
-
-    const sortedAndSearchedPosts = usePosts(posts, filter.sort, filter.query)
-
-    async function fetchPosts() {
-        setLoading(true)
-        setTimeout(async e => {
-            const posts = await PostService.getAll()
-            setPosts(posts)
-            setLoading(false)
-        },1000)
 
     }
-
 
     useEffect(() => {
         fetchPosts()
-    }, [])
+    }, [page])
+
+
+    const changePage = (page) => {
+        setPage(page)
+    }
+
 
     return (
         <div className="App">
@@ -66,12 +64,23 @@ function App() {
             </MyModal>
 
             <PostFilter filter={filter} setFilter={setFilter}/>
+            {
+                postError && <h1>Произошла ошибка {postError}</h1>
+            }
             {loading
                 ? <div style={{display: "flex", justifyContent: "center", marginTop: "50px"}}>
                     <Loader/>
                 </div>
                 : <PostList posts={sortedAndSearchedPosts} title={"Посты про кайф"} remove={removePost}/>
             }
+            <div className="page__wrapper">
+                {
+                    pagesArray.map(p =>
+                        <span key={p} onClick={() => changePage(p)} className={p === page ? "page page__current" : "page"}>{p}</span>
+                    )
+                }
+            </div>
+
         </div>
     );
 }
