@@ -81,5 +81,5 @@ model = keras.models.load_model('pretrained_model.h5')
 
 # проверка работы модели
 if __name__ == "__main__":
-    res = photo_to_latex("image.png", model)
+    res = photo_to_latex("test_imgs/image.png", model)
     print(res)
