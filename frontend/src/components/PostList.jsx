@@ -2,7 +2,13 @@ import React from 'react';
 import PostItem from "./PostItem";
 
 const PostList = ({posts, title, remove}) => {
-    // const [posts, setPosts] = useState([{id: 1, title: "Javascript", text:"язык говона"}]);
+
+
+    if (!posts.length) {
+         return (
+             <h1 style={{textAlign: "center"}}>Постов нет</h1>
+         )
+    }
     return (
         <div>
             <h1 style={{textAlign: "center"}}>

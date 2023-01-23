@@ -1,17 +1,20 @@
 import "./styles/style.css"
-import {useState} from "react";
+import {useState, useMemo} from "react";
 import PostList from "./components/PostList";
 import MyButton from "./components/UI/button/MyButton";
 import MyInput from "./components/UI/input/MyInput";
 import PostForm from "./components/PostForm";
 import MySelect from "./components/UI/select/MySelect";
+import PostFilter from "./components/PostFilter";
 
 function App() {
-    const [posts,setPosts] = useState([
-        {id: 1, title: "Python", text:"кайф"},
-        {id: 2, title: "PHP", text:"кайф"},
-        {id: 3, title: "Go", text:"кайф"}
+    const [posts, setPosts] = useState([
+        {id: 1, title: "Python", text: "кайф"},
+        {id: 2, title: "PHP", text: "кайф"},
+        {id: 3, title: "Go", text: "кайф"}
     ])
+
+    const [filter, setFilter] = useState({sort: "", query: ""})
 
     const createPost = (newPost) => {
         setPosts([...posts, newPost])
@@ -21,49 +24,29 @@ function App() {
         setPosts(posts.filter(p => p.id !== post.id))
     }
 
-    const [selectedsort, setSelectedSort] = useState("")
 
-    const getSortedPosts  = () => {
+    const sortedPosts = useMemo(e => {
         console.log("ASD")
-        if (selectedsort) {
-            return [...posts].sort((p1, p2) => p1[selectedsort].localeCompare(p2[selectedsort]))
+        if (filter.sort) {
+            return [...posts].sort((p1, p2) => p1[filter.sort].localeCompare(p2[filter.sort]))
         }
         return posts
-    }
+    }, [filter.sort, posts])
 
-    const sortedPosts = getSortedPosts()
+    const sortedAndSearchedPosts = useMemo(e => {
+        console.log("qwe")
+        return sortedPosts.filter(post =>
+            post.title.toLowerCase().includes(filter.query.toLowerCase()))
 
-    const sortPosts = (sort) => {
-        setSelectedSort(sort)
-    }
 
-    const [searchquery, setSearchQuery] = useState("")
+    }, [filter.query, sortedPosts])
+
 
     return (
         <div className="App">
             <PostForm create={createPost}/>
-            <div>
-                <MyInput
-                    value={searchquery}
-                    onChange={e => setSearchQuery(e.target.value)}
-                    placeholder="Поиск"
-                />
-                <MySelect
-                    value={selectedsort}
-                    onChange={sortPosts}
-                    defaultValue="Сортировка"
-                    options={[
-                        {value: "title", name: "По названию"},
-                        {value: "text", name: "По описанию"}
-
-                    ]}
-                />
-            </div>
-
-            {posts.length
-                ? <PostList posts={sortedPosts} title={"Посты про кайф"} remove={removePost}/>
-                : <h1 style={{textAlign: "center"}}>Постов нет</h1>
-            }
+            <PostFilter filter={filter} setFilter={setFilter}/>
+            <PostList posts={sortedAndSearchedPosts} title={"Посты про кайф"} remove={removePost}/>
         </div>
     );
 }
