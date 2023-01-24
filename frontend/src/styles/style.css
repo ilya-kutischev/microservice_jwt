@@ -5,7 +5,8 @@
 }
 #root {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
 }
 .App {
     width: 800px;
@@ -18,6 +19,10 @@
     padding: 15px;
     border: 2px solid blue;
     border-radius: 10px;
+}
+
+.post__btn {
+    display: flex;
 }
 
 #form {
@@ -39,4 +44,29 @@
 .page__current {
     border: 2px solid yellow;
     font-weight: bold;
+}
+
+.navbar {
+    height: 50px;
+    width: 100vw;
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    background-color: lightyellow;
+}
+
+.navbar__links {
+    margin-left: auto;
+}
+
+.active {
+    color: orange;
+}
+
+
+.post__detail {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 1000px;
 }
