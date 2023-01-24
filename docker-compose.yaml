@@ -1,5 +1,14 @@
 version: '3'
 services:
+  frontend:
+    build:
+      context: ./frontend/
+    image: fullstack-react-fastapi-auth0-frontend
+#    env_file:
+#      - ./services/frontend/.env
+    ports:
+      - 3000:3000
+
   apigateway:
     container_name: docker-fastapi
     restart: always
