@@ -7,7 +7,6 @@ from fastapi import Depends, FastAPI, HTTPException, Request, UploadFile, File
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from starlette.responses import Response
-
 import crud, models, schemas,security
 from database import SessionLocal, engine
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -16,7 +15,6 @@ from datetime import timedelta
 import re
 from fastapi import APIRouter
 import base64
-
 from kafka_connector import produce_message, AsyncConsumer
 from dotenv import load_dotenv
 import os
@@ -28,7 +26,6 @@ if os.path.exists(dotenv_path):
 logger = logging.getLogger('uvicorn.info')
 
 router = APIRouter()
-# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 ACCESS_TOKEN_EXPIRE_MINUTES = float(os.environ.get('ACCESS_TOKEN_EXPIRE_MINUTES'))
 
 
@@ -72,7 +69,6 @@ async def startup_event():
 # используем функцию для распознавания
 # @app.post("/analyze/")
 async def analyze_route(contents):
-    # contents = await file.read()
     # пробуем request-response принип в кафке
     request_id = str(uuid.uuid1())
     data_to_produce = {"payload": str(binascii.hexlify(contents)), "request_id": request_id}
@@ -232,4 +228,5 @@ async def delete_user_items(note_id:int,access_token:str = Depends(oauth2_scheme
     crud.delete_user_note(db,note)
 
     return {"message":note}
-    
+
+
