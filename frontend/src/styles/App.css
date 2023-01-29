@@ -1,0 +1,10 @@
+* {
+    --color1: #49c5b6
+}
+
+.app {
+    display: flex;
+    flex-direction: column;
+    margin: auto;
+    width: 50%;
+}

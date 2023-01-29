@@ -1,0 +1,15 @@
+@import "App.css";
+
+
+.user {
+    display: flex;
+    justify-content: space-between;
+    border: 2px solid var(--color1);
+    border-radius: 5px;
+    padding-left: 10px;
+    margin: 5px;
+}
+
+.open-btn {
+    margin: 10px;
+}
