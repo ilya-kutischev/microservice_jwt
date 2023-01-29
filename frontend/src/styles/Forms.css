@@ -1,0 +1,38 @@
+.forms {
+    display: flex;
+    justify-content: space-between;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    margin: 20px 0;
+    border: 2px solid var(--color1);
+    width: 40%;
+    border-radius: 5px;
+    padding: 10px 10px 0;
+    white-space: nowrap;
+}
+
+input {
+    margin: 5px;
+}
+
+.form-btn {
+    width: 20%;
+    margin: 5px 0 0 0;
+    height: 30px;
+}
+
+
+.btn-mes {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding-bottom: 10px;
+}
+
+.login-message {
+    margin: 0;
+    padding-top: 10px;
+}

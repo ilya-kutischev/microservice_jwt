@@ -91,6 +91,7 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     return crud.create_user(db=db, user=user)
 
 
+
 # @app.get("/users/", response_model=List[schemas.User])
 def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     users = crud.get_users(db, skip=skip, limit=limit)
@@ -134,7 +135,6 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
             detail="User Not Found",
             headers={"WWW-Authenticate": "Bearer"},
         )
-
 
     db_user = crud.get_user_by_email(db, email=email)
     print(db_user)
@@ -229,5 +229,4 @@ async def delete_user_items(note_id:int,access_token:str = Depends(oauth2_scheme
     crud.delete_user_note(db,note)
 
     return {"message":note}
-
 

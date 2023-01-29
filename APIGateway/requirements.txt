@@ -12,3 +12,4 @@ pycryptodomex==3.16.0
 python-dotenv==0.21.0
 pytest==7.2.1
 httpx==0.23.3
+
