@@ -3,6 +3,10 @@ import hashlib
 import json
 from datetime import datetime, timedelta
 from typing import Optional
+
+from fastapi import HTTPException
+from starlette.responses import Response
+
 from jwt import encodeJWT, decodeJWT
 import os
 from dotenv import load_dotenv
@@ -45,15 +49,22 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 
 def get_current_user_email(token):
     decoded = decodeJWT(token, SECRET_KEY)
-    # email: str = payload["sub"]
-    user_email = json.loads(decoded["payload"])["sub"]
+    try:
+        user_email = json.loads(decoded["payload"])["sub"]
+    except TypeError:
+        # return Response(status_code=403, content="Wrong JWT")
+        raise TypeError("Wrong JWT")
     return user_email
-    # if username is None:
-    #     raise credentials_exception
-    # token_data = TokenData(username=username)
-    # except JWTError:
-    #     raise credentials_exception
-    # user = get_user(fake_users_db, username=token_data.username)
-    # if user is None:
-    #     raise credentials_exception
-    # return user
+
+# аналог проверки oauth2token но лучше уже использовать то что уже есть пусть это будет закомментировано
+# def verify_token(token: str):
+#     try:
+#         verifyJWT(token, SECRET_KEY)
+#     except ValueError:
+#        raise HTTPException(
+#             status_code=401,
+#             detail="Incorrect TOKEN",
+#             headers={"WWW-Authenticate": "Bearer"},
+#         )
+#     return token
+

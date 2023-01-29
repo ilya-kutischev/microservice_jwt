@@ -37,7 +37,7 @@ async def startup_event():
 
 @app.get("/", tags=["root"])
 async def read_root() -> dict:
-    res = photo_to_latex("image.png", model)
+    res = photo_to_latex("test_imgs/image.png", model)
     return {"message": f"Welcome to our service. Your recognition: {res}"}
 
 

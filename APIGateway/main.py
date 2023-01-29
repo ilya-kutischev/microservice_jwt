@@ -7,7 +7,6 @@ from fastapi import Depends, FastAPI, HTTPException, Request, UploadFile, File
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from starlette.responses import Response
-
 import crud, models, schemas,security
 from database import SessionLocal, engine
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -16,15 +15,18 @@ from datetime import timedelta
 import re
 from fastapi import APIRouter
 import base64
-
 from kafka_connector import produce_message, AsyncConsumer
+from dotenv import load_dotenv
+import os
+
+dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+if os.path.exists(dotenv_path):
+    load_dotenv(dotenv_path)
+
 logger = logging.getLogger('uvicorn.info')
 
 router = APIRouter()
-
-
-
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = float(os.environ.get('ACCESS_TOKEN_EXPIRE_MINUTES'))
 
 
 models.Base.metadata.create_all(bind=engine)
@@ -32,7 +34,6 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 app = FastAPI()
 
 app.include_router(router)
-
 
 origins = "*"
 
@@ -68,21 +69,19 @@ async def startup_event():
 # используем функцию для распознавания
 # @app.post("/analyze/")
 async def analyze_route(contents):
-    # contents = await file.read()
     # пробуем request-response принип в кафке
     request_id = str(uuid.uuid1())
     data_to_produce = {"payload": str(binascii.hexlify(contents)), "request_id": request_id}
     await produce_message("gateway_recognizer", data_to_produce)
     #catching response
     aio_consumer = AsyncConsumer()
-    loop = asyncio.get_running_loop()
     response = await aio_consumer.consume_request(request_id)
     return response
 
 
 @app.post("/users/", response_model=schemas.User)
-def create_user(request:Request, user: schemas.UserCreate, db: Session = Depends(get_db)):
-    # print(user.email)
+def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    print(user.email)
     regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
     db_user = crud.get_user_by_email(db, email=user.email)
     if re.fullmatch(regex, user.email)==None:
@@ -92,14 +91,14 @@ def create_user(request:Request, user: schemas.UserCreate, db: Session = Depends
     return crud.create_user(db=db, user=user)
 
 
-@app.get("/users/", response_model=List[schemas.User])
-def read_users(request:Request, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+
+# @app.get("/users/", response_model=List[schemas.User])
+def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     users = crud.get_users(db, skip=skip, limit=limit)
-    # return users
-    return  users
+    return users
 
 
-@app.get("/users/{user_id}", response_model=schemas.User)
+# @app.get("/users/{user_id}", response_model=schemas.User)
 def read_user(user_id: int, db: Session = Depends(get_db)):
     db_user = crud.get_user(db, user_id=user_id)
     if db_user is None:
@@ -111,7 +110,8 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
 
     db_user = crud.get_user_by_email(db, email=form_data.username)
-    if not (security.verify_hash(form_data.password,db_user.salt).decode('utf-8') == db_user.hashed_password):
+    if db_user is None or security.verify_hash(form_data.password, db_user.salt).decode(
+            'utf-8') != db_user.hashed_password:
         raise HTTPException(
             status_code=401,
             detail="Incorrect username or password",
@@ -125,16 +125,24 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     return {"access_token": access_token}
 
 
-@app.get("/user",response_model=schemas.User)
-async def get_current_user(token: str, db: Session = Depends(get_db)):
-    email=security.get_current_user_email(token)
+@app.get("/user", response_model=schemas.User)
+async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    try:
+        email=security.get_current_user_email(token)
+    except TypeError:
+        raise HTTPException(
+            status_code=404,
+            detail="User Not Found",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
     db_user = crud.get_user_by_email(db, email=email)
     print(db_user)
     return db_user
 
 
 @app.get("/user/notes")
-async def get_current_user(access_token: str, db: Session = Depends(get_db)):
+async def get_current_user(access_token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     email=security.get_current_user_email(access_token)
     db_user = crud.get_user_by_email(db, email=email)
 
@@ -142,7 +150,7 @@ async def get_current_user(access_token: str, db: Session = Depends(get_db)):
 
 
 @app.get("/user/notes/pic")
-async def get_current_user(access_token: str, note_id:int, db: Session = Depends(get_db)):
+async def get_current_user(note_id: int,access_token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     email = security.get_current_user_email(access_token)
     db_user = crud.get_user_by_email(db, email=email)
     note = crud.get_note_by_id(db, db_user, note_id)
@@ -155,10 +163,9 @@ async def get_current_user(access_token: str, note_id:int, db: Session = Depends
 
 @app.post("/user/notes")
 async def post_user_note(
-        request:Request,
-        access_token:str,
         title:str,
         description:str,
+        access_token:str = Depends(oauth2_scheme),
         picture: UploadFile = File(...),
         db: Session = Depends(get_db)):
     # reading file
@@ -197,7 +204,7 @@ async def post_user_note(
 
 
 @app.put("/user/notes")
-async def update_user_note(request:Request,access_token:str,note_id:int,title:str, description:str,db: Session = Depends(get_db)):
+async def update_user_note(note_id:int,title:str, description:str,access_token:str = Depends(oauth2_scheme),db: Session = Depends(get_db)):
     email=security.get_current_user_email(access_token)
     db_user = crud.get_user_by_email(db, email=email)
     note = {
@@ -211,7 +218,7 @@ async def update_user_note(request:Request,access_token:str,note_id:int,title:st
 
 
 @app.delete("/user/notes")
-async def delete_user_items(request:Request,access_token:str,note_id:int,db: Session = Depends(get_db)):
+async def delete_user_items(note_id:int,access_token:str = Depends(oauth2_scheme),db: Session = Depends(get_db)):
     email=security.get_current_user_email(access_token)
     db_user = crud.get_user_by_email(db, email=email)
     note = {
@@ -222,4 +229,4 @@ async def delete_user_items(request:Request,access_token:str,note_id:int,db: Ses
     crud.delete_user_note(db,note)
 
     return {"message":note}
-    
+
