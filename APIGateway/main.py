@@ -109,7 +109,8 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
 
     db_user = crud.get_user_by_email(db, email=form_data.username)
-    if not (security.verify_hash(form_data.password,db_user.salt).decode('utf-8') == db_user.hashed_password):
+    if db_user is None or security.verify_hash(form_data.password, db_user.salt).decode(
+            'utf-8') != db_user.hashed_password:
         raise HTTPException(
             status_code=401,
             detail="Incorrect username or password",
