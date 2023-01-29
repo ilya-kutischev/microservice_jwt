@@ -1,17 +1,65 @@
-import React from 'react';
+import React, {useState} from 'react';
 import '../styles/Forms.css'
-const SignUpForm = () => {
+import axios from "axios";
+
+
+const SignUpForm = ({signin}) => {
+    const success = 'successfull signin';
+    const [user, setUser] = useState({
+        'username': '',
+        'password': ''
+    })
+    const [message, setMessage] = useState('')
+    const SignUpUser = async (e) => {
+        e.preventDefault();
+        setMessage('')
+        try {
+            const response = await axios.post('http://localhost:8000/token', user,
+                {
+                    'headers':
+                        {"Content-Type": "multipart/form-data"}
+                })
+            signin(response.data.access_token)
+            setSuccess()
+        } catch (er) {
+            setError(er.response.data.detail)
+        }
+    }
+
+    const setSuccess = () => {
+        setMessage(success)
+    }
+
+    const setError = (m) => {
+        setMessage(m)
+    }
+
     return (
-        <form className='signup-form form'>
+        <form className='form'>
             <label>
                 Email:
-                <input type="email"/>
+                <input
+                    type="email"
+                    value={user.username}
+                    onChange={(e) => setUser({...user, username: e.target.value})}
+                />
             </label>
             <label>
                 Password:
-                <input type="password"/>
+                <input
+                    type="password"
+                    value={user.password}
+                    onChange={(e) => setUser({...user, password: e.target.value})}
+                />
             </label>
-            <button className="form-btn">Sign in</button>
+            <div className='btn-mes'>
+                <button
+                    className='form-btn'
+                    onClick={SignUpUser}
+                >Login
+                </button>
+                <p className='message' style={{color: message===success ? 'green': 'red'}}>{message}</p>
+            </div>
         </form>
     );
 };

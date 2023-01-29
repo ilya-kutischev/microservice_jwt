@@ -1,32 +1,35 @@
 import React, {useState} from 'react';
 import '../styles/Forms.css'
 import axios from "axios";
-import addUser from '../components/UserList.jsx'
-const LoginForm = () => {
+
+const LoginForm = ({addUser}) => {
+    const success = 'successfull login';
     const [user, setUser] = useState({'email': '', 'password': ''})
     const [message, setMessage] = useState('')
     const loginUser = async (e) => {
         e.preventDefault();
         setMessage('')
-        axios.post('http://localhost:8000/users/', user).catch(er=> {
+        try {
+            const response = await axios.post('http://localhost:8000/users/', user)
+            addUser(response.data)
+            setUser({email: '', password: ''})
+            setSuccess();
+        }
+        catch (er) {
+            console.log(er)
             setError(er.response.data.detail)
-        })
-        setUser({email: '', password: ''})
-        setSuccess();
-
-
+        }
     }
 
     const setSuccess = () => {
-
-        setMessage('successfull login')
+        setMessage(success)
     }
 
     const setError = (m) => {
         setMessage(m)
     }
     return (
-        <form className='login-form form'>
+        <form className='form'>
             <label>
                 Email:
                 <input
@@ -48,10 +51,8 @@ const LoginForm = () => {
                     className='form-btn'
                     onClick={loginUser}
                 >Login</button>
-                <p className='login-message' style={{color: message==='successfull login' ? 'green': 'red'}}>{message}</p>
+                <p className='message' style={{color: message===success ? 'green': 'red'}}>{message}</p>
             </div>
-
-
         </form>
     );
 };
