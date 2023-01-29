@@ -96,7 +96,7 @@ def create_user(request:Request, user: schemas.UserCreate, db: Session = Depends
 def read_users(request:Request, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     users = crud.get_users(db, skip=skip, limit=limit)
     # return users
-    return users
+    return  users
 
 
 @app.get("/users/{user_id}", response_model=schemas.User)
