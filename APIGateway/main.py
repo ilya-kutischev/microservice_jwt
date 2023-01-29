@@ -7,7 +7,6 @@ from fastapi import Depends, FastAPI, HTTPException, Request, UploadFile, File
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from starlette.responses import Response
-
 import crud, models, schemas,security
 from database import SessionLocal, engine
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -16,7 +15,6 @@ from datetime import timedelta
 import re
 from fastapi import APIRouter
 import base64
-
 from kafka_connector import produce_message, AsyncConsumer
 from dotenv import load_dotenv
 import os
@@ -28,7 +26,6 @@ if os.path.exists(dotenv_path):
 logger = logging.getLogger('uvicorn.info')
 
 router = APIRouter()
-# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 ACCESS_TOKEN_EXPIRE_MINUTES = float(os.environ.get('ACCESS_TOKEN_EXPIRE_MINUTES'))
 
 
@@ -72,7 +69,6 @@ async def startup_event():
 # используем функцию для распознавания
 # @app.post("/analyze/")
 async def analyze_route(contents):
-    # contents = await file.read()
     # пробуем request-response принип в кафке
     request_id = str(uuid.uuid1())
     data_to_produce = {"payload": str(binascii.hexlify(contents)), "request_id": request_id}
@@ -113,7 +109,8 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
 
     db_user = crud.get_user_by_email(db, email=form_data.username)
-    if not (security.verify_hash(form_data.password,db_user.salt).decode('utf-8') == db_user.hashed_password):
+    if db_user is None or security.verify_hash(form_data.password, db_user.salt).decode(
+            'utf-8') != db_user.hashed_password:
         raise HTTPException(
             status_code=401,
             detail="Incorrect username or password",
@@ -232,4 +229,5 @@ async def delete_user_items(note_id:int,access_token:str = Depends(oauth2_scheme
     crud.delete_user_note(db,note)
 
     return {"message":note}
-    
+
+
