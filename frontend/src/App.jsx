@@ -6,6 +6,7 @@ import SignUpForm from "./components/SignUpForm";
 import './styles/Forms.css'
 import './styles/App.css'
 import UserDetail from "./components/UserDetail";
+import NoteList from "./components/NoteList";
 
 function App() {
     const cookies = new Cookies();
@@ -36,7 +37,12 @@ function App() {
                     : <SignUpForm signin={signin}/>
                 }
             </div>
-            <UserList users={users} setUsers={setUsers} token={token}/>
+            {token
+                ? <NoteList token={token}/>
+                : <h3>Not authenticated</h3>
+            }
+
+            {/*<UserList users={users} setUsers={setUsers} token={token}/>*/}
         </div>
     );
 
