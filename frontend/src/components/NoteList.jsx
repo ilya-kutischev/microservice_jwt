@@ -74,7 +74,7 @@ const NoteList = ({token}) => {
 
             {
                 notes.length
-                ? notes.map(note => <Note updateNotes={(id) => updateNotes(id)} key={note.id} data={note}/>)
+                ? notes.map(note => <Note setIsLoading={setIsLoading} updateNotes={(id) => updateNotes(id)} key={note.id} data={note}/>)
                 : <h3>You don't have any notes yet</h3>
             }
         </div>
