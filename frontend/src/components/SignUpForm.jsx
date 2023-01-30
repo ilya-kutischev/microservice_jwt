@@ -56,7 +56,7 @@ const SignUpForm = ({signin}) => {
                 <button
                     className='form-btn'
                     onClick={SignUpUser}
-                >Login
+                >Sign in
                 </button>
                 <p className='message' style={{color: message===success ? 'green': 'red'}}>{message}</p>
             </div>
