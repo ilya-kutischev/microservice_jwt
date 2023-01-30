@@ -22,11 +22,16 @@ const NoteList = ({token}) => {
             setIsLoading(false)
         }
     }, [token])
+
+
+    const updateNotes = (id) => {
+        setNotes(notes.filter((note) => note.id!==id))
+    }
     return (
         <div className='notes'>
             {
                 notes.length
-                ? notes.map(note => <Note key={note.id} data={note}/>)
+                ? notes.map(note => <Note updateNotes={(id) => updateNotes(id)} key={note.id} data={note}/>)
                 : <h3>You don't have any notes yet</h3>
             }
         </div>
