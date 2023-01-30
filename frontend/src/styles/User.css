@@ -15,15 +15,26 @@
     margin: 10px;
 }
 
-
 .notes {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    margin: 10px;
 }
 
 .note {
     background-color: lightgoldenrodyellow;
     margin: 10px;
+    padding: 0 15px;
+}
+
+
+.image__container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+}
+#image {
+    width: 80%;
+   border: 1px solid black;
 }
