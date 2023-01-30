@@ -1,11 +1,14 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import Note from "./Note";
 import '../styles/User.css'
 import axios from "axios";
+import loginForm from "./LoginForm";
 
 const NoteList = ({token}) => {
     const [notes, setNotes] = useState([])
     const [isLoading, setIsLoading] = useState(false)
+    const [newNote, setNewNote] = useState({title: '', description: ''})
+    const [picture, setPicture] = useState('')
     const getNotes = async (tok) => {
         try {
             axios.defaults.headers.common['Authorization'] = "Bearer " + tok;
@@ -15,20 +18,60 @@ const NoteList = ({token}) => {
             console.log(e)
         }
     }
-    useEffect(() => {
+    useMemo(() => {
         if (token) {
+            console.log(isLoading)
             setIsLoading(true)
             getNotes(token)
             setIsLoading(false)
         }
-    }, [token])
+    }, [token, isLoading])
 
 
     const updateNotes = (id) => {
         setNotes(notes.filter((note) => note.id!==id))
     }
+
+    async function AddNote(e) {
+        e.preventDefault()
+        try {
+            const response = await axios.post('http://localhost:8000/user/notes',
+                {picture},
+                {
+                    params: newNote,
+                headers: {"Content-Type": "multipart/form-data; boundary=----WebKitFormBoundarylYOPyhSdQzPwOOlB"}
+                })
+            console.log(response)
+            setIsLoading(null)
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
+
     return (
         <div className='notes'>
+            <form encType="multipart/form-data" className='note-form'>
+                <label>
+                    Title:
+                    <input type="text"
+                    value={newNote.title}
+                    onChange={(e) => setNewNote({...newNote, title: e.target.value})}/>
+                </label>
+                <label>
+                    Description:
+                    <input type="text"
+                    value={newNote.description}
+                    onChange={(e)=> setNewNote({...newNote, description: e.target.value})}/>
+                </label>
+                <label>
+                    Picture:
+                    <input type="file"
+                    onChange={(e)=>setPicture(e.target.files[0])}/>
+                </label>
+                <button onClick={(e) => AddNote(e)}>Create</button>
+            </form>
+
             {
                 notes.length
                 ? notes.map(note => <Note updateNotes={(id) => updateNotes(id)} key={note.id} data={note}/>)
