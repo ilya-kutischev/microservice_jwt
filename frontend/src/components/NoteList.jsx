@@ -30,12 +30,7 @@ const NoteList = ({token}) => {
             getNotes(token)
             setIsLoading(false)
         }
-    }, [token, isLoading])
-
-
-    const updateNotes = (id) => {
-        setNotes(notes.filter((note) => note.id!==id))
-    }
+    }, [token])
 
     async function addNote(e) {
         e.preventDefault()
@@ -47,17 +42,13 @@ const NoteList = ({token}) => {
                 headers: {"Content-Type": "multipart/form-data; boundary=----WebKitFormBoundarylYOPyhSdQzPwOOlB"}
                 })
 
-            setIsLoading(null)
+            setNotes([...notes, response.data.message])
             setNewNote({title: '', description: ''})
         } catch (e) {
             console.log(e)
         }
     }
-    function openDrawWindow(e) {
-        e.preventDefault()
-        setCanvas(true)
-        console.log('draw')
-    }
+
     useEffect(()=>{
         console.log(mySelect)
     },[mySelect])
@@ -104,7 +95,7 @@ const NoteList = ({token}) => {
 
             {
                 notes.length
-                ? notes.map(note => <Note setIsLoading={setIsLoading} updateNotes={(id) => updateNotes(id)} key={note.id} data={note}/>)
+                ? notes.map(note => <Note notes={notes} setNotes={setNotes} key={note.id} data={note}/>)
                 : <h3>You don't have any notes yet</h3>
             }
         </div>

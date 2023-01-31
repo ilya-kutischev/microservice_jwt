@@ -3,7 +3,7 @@ import '../styles/User.css'
 import updateNotes from './NoteList'
 import axios from "axios";
 import MyModal from "./UI/MyModal/MyModal";
-const Note = ({updateNotes, data, setIsLoading}) => {
+const Note = ({updateNotes, data, notes, setNotes}) => {
     const img = "data:image/png;base64," + data.picture;
     const [editId, setEditId] = useState(null)
     const [modal, setModal] = useState(false)
@@ -32,14 +32,13 @@ const Note = ({updateNotes, data, setIsLoading}) => {
         const params = {note_id: editId, ...currentNote}
         e.preventDefault()
         try {
-            const response = await axios.put('http://localhost:8000/user/notes',
+            await axios.put('http://localhost:8000/user/notes',
                 null,
                 {
                     params: params
                 })
-            console.log(response)
             setModal(false)
-            setIsLoading(null)
+            setNotes(notes.map(note => note.id===editId ? {...note, ...currentNote} : note))
         } catch (e) {
             console.log(e)
         }
