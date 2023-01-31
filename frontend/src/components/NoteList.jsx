@@ -2,7 +2,6 @@ import React, {useEffect, useMemo, useState} from 'react';
 import Note from "./Note";
 import '../styles/User.css'
 import axios from "axios";
-import loginForm from "./LoginForm";
 
 const NoteList = ({token}) => {
     const [notes, setNotes] = useState([])
@@ -32,7 +31,7 @@ const NoteList = ({token}) => {
         setNotes(notes.filter((note) => note.id!==id))
     }
 
-    async function AddNote(e) {
+    async function addNote(e) {
         e.preventDefault()
         try {
             const response = await axios.post('http://localhost:8000/user/notes',
@@ -69,7 +68,7 @@ const NoteList = ({token}) => {
                     <input type="file"
                     onChange={(e)=>setPicture(e.target.files[0])}/>
                 </label>
-                <button onClick={(e) => AddNote(e)}>Create</button>
+                <button onClick={(e) => addNote(e)}>Create</button>
             </form>
 
             {

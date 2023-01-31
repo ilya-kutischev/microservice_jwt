@@ -1,7 +1,6 @@
-import UserList from "./components/UserList";
 import React, {useState} from "react";
 import Cookies from 'universal-cookie';
-import LoginForm from "./components/LoginForm";
+import SignInForm from "./components/SignInForm";
 import SignUpForm from "./components/SignUpForm";
 import './styles/Forms.css'
 import './styles/App.css'
@@ -30,11 +29,11 @@ function App() {
     return (
         <div className='app'>
             <div className='forms'>
-                <LoginForm addUser={addNewUser}/>
+                <SignUpForm addUser={addNewUser}/>
                 {
                     token
                     ? <UserDetail signout={signout}/>
-                    : <SignUpForm signin={signin}/>
+                    : <SignInForm signin={signin}/>
                 }
             </div>
             {token

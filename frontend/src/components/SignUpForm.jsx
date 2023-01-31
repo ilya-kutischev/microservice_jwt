@@ -2,26 +2,21 @@ import React, {useState} from 'react';
 import '../styles/Forms.css'
 import axios from "axios";
 
-
-const SignUpForm = ({signin}) => {
-    const success = 'successfull signin';
-    const [user, setUser] = useState({
-        'username': '',
-        'password': ''
-    })
+const SignUpForm = ({addUser}) => {
+    const success = 'successfull signup';
+    const [user, setUser] = useState({'email': '', 'password': ''})
     const [message, setMessage] = useState('')
-    const SignUpUser = async (e) => {
+    const signUpUser = async (e) => {
         e.preventDefault();
         setMessage('')
         try {
-            const response = await axios.post('http://localhost:8000/token', user,
-                {
-                    'headers':
-                        {"Content-Type": "multipart/form-data"}
-                })
-            signin(response.data.access_token)
-            setSuccess()
-        } catch (er) {
+            const response = await axios.post('http://localhost:8000/users/', user)
+            addUser(response.data)
+            setUser({email: '', password: ''})
+            setSuccess();
+        }
+        catch (er) {
+            console.log(er)
             setError(er.response.data.detail)
         }
     }
@@ -33,15 +28,14 @@ const SignUpForm = ({signin}) => {
     const setError = (m) => {
         setMessage(m)
     }
-
     return (
         <form className='form'>
             <label>
                 Email:
                 <input
                     type="email"
-                    value={user.username}
-                    onChange={(e) => setUser({...user, username: e.target.value})}
+                    value={user.email}
+                    onChange={(e) => setUser({...user, email: e.target.value})}
                 />
             </label>
             <label>
@@ -55,9 +49,8 @@ const SignUpForm = ({signin}) => {
             <div className='btn-mes'>
                 <button
                     className='form-btn'
-                    onClick={SignUpUser}
-                >Sign in
-                </button>
+                    onClick={signUpUser}
+                >Sign up</button>
                 <p className='message' style={{color: message===success ? 'green': 'red'}}>{message}</p>
             </div>
         </form>
