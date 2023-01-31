@@ -195,12 +195,19 @@ async def post_user_note(
             }
 
     try:
-        crud.create_user_note(db,note)
-    except IntegrityError:
+        created_note = crud.create_user_note(db,note)
+    # except IntegrityError:
+    #     db.rollback()
+        # crud.update_user_note(db,note)
+    except:
         db.rollback()
-        crud.update_user_note(db,note)
+        raise HTTPException(
+            status_code=429,
+            detail="Unprocessable entity",
+        )
+    # полученную записку возвращаем в респонс
 
-    return {"message":note}
+    return {"message":created_note}
 
 
 @app.put("/user/notes")
@@ -213,8 +220,8 @@ async def update_user_note(note_id:int,title:str, description:str,access_token:s
         "description": description,
         "owner_id": db_user.id
     }
-    crud.update_user_note(db,note)
-    return {"message":note}
+    created_note = crud.update_user_note(db,note)
+    return {"message":created_note}
 
 
 @app.delete("/user/notes")
