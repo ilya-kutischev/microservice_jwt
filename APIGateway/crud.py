@@ -48,6 +48,14 @@ def create_user_note(db:Session, note:dict):
     db.add(db_item)
     db.commit()
     db.refresh(db_item)
+    # returning object
+    item = db_item
+    note = OrderedDict()
+    note["id"] = item.id
+    note["title"] = item.title
+    note["description"] = item.description
+    note["picture"] = item.picture
+    note["latex"] = item.latex
     return note
 
 
@@ -61,6 +69,14 @@ def update_user_note(db:Session, note:dict):
     updateObject.title = db_item.title
     db.commit()
     db.refresh(updateObject)
+    # returning object
+    item = db_item
+    note = OrderedDict()
+    note["id"] = item.id
+    note["title"] = item.title
+    note["description"] = item.description
+    note["picture"] = item.picture
+    note["latex"] = item.latex
     return note
 
 
