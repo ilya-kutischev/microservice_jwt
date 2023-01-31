@@ -2,12 +2,18 @@ import React, {useEffect, useMemo, useState} from 'react';
 import Note from "./Note";
 import '../styles/User.css'
 import axios from "axios";
+import MyModal from "./UI/MyModal/MyModal";
+import Canvas from "./UI/Canvas/Canvas";
+import CanvasDraw from "react-canvas-draw";
 
 const NoteList = ({token}) => {
     const [notes, setNotes] = useState([])
     const [isLoading, setIsLoading] = useState(false)
     const [newNote, setNewNote] = useState({title: '', description: ''})
     const [picture, setPicture] = useState('')
+    const [mySelect, setMySelect] = useState('Upload file')
+    const [canvas, setCanvas] = useState(false)
+
     const getNotes = async (tok) => {
         try {
             axios.defaults.headers.common['Authorization'] = "Bearer " + tok;
@@ -40,13 +46,25 @@ const NoteList = ({token}) => {
                     params: newNote,
                 headers: {"Content-Type": "multipart/form-data; boundary=----WebKitFormBoundarylYOPyhSdQzPwOOlB"}
                 })
-            console.log(response)
+
             setIsLoading(null)
+            setNewNote({title: '', description: ''})
         } catch (e) {
             console.log(e)
         }
     }
+    function openDrawWindow(e) {
+        e.preventDefault()
+        setCanvas(true)
+        console.log('draw')
+    }
+    useEffect(()=>{
+        console.log(mySelect)
+    },[mySelect])
 
+    const getPicture = (data) =>  {
+        data.then(res => setPicture(res));
+    }
 
     return (
         <div className='notes'>
@@ -63,11 +81,24 @@ const NoteList = ({token}) => {
                     value={newNote.description}
                     onChange={(e)=> setNewNote({...newNote, description: e.target.value})}/>
                 </label>
-                <label>
-                    Picture:
-                    <input type="file"
-                    onChange={(e)=>setPicture(e.target.files[0])}/>
-                </label>
+                <select value={mySelect} onChange={e => {
+                    setMySelect(e.target.value)}
+                }>
+                    <option>Upload file</option>
+                    <option>Draw now</option>
+                </select>
+                {
+                    mySelect==="Upload file"
+                    ?
+                        <label>
+                            <input type="file"
+                            onChange={(e)=> setPicture(e.target.files[0])}/>
+                        </label>
+                    : <Canvas getPicture={getPicture} />
+                }
+                {/*<MyModal visible={canvas} setVisible={setCanvas}>*/}
+                {/*    <Canvas/>*/}
+                {/*</MyModal>*/}
                 <button onClick={(e) => addNote(e)}>Create</button>
             </form>
 
