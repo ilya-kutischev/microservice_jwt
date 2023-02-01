@@ -1,10 +1,8 @@
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, {useMemo, useState} from 'react';
 import Note from "./Note";
 import '../styles/User.css'
 import axios from "axios";
-import MyModal from "./UI/MyModal/MyModal";
 import Canvas from "./UI/Canvas/Canvas";
-import CanvasDraw from "react-canvas-draw";
 
 const NoteList = ({token}) => {
     const [notes, setNotes] = useState([])
@@ -84,16 +82,12 @@ const NoteList = ({token}) => {
                         </label>
                     : <Canvas setPicture={setPicture} />
                 }
-                {/*<MyModal visible={canvas} setVisible={setCanvas}>*/}
-                {/*    <Canvas/>*/}
-                {/*</MyModal>*/}
                 <button onClick={(e) => addNote(e)}>Create</button>
             </form>
-
             {
                 notes.length
                 ? notes.map(note => <Note notes={notes} setNotes={setNotes} key={note.id} data={note}/>)
-                : <h3>You don't have any notes yet</h3>
+                    : <h3>You don't have any notes yet</h3>
             }
         </div>
     );

@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
 import '../styles/User.css'
-import updateNotes from './NoteList'
 import axios from "axios";
 import MyModal from "./UI/MyModal/MyModal";
+
 const Note = ({data, notes, setNotes}) => {
     const img = "data:image/png;base64," + data.picture;
     const [editId, setEditId] = useState(null)
