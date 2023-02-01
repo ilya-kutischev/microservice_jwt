@@ -3,7 +3,7 @@ import '../styles/User.css'
 import updateNotes from './NoteList'
 import axios from "axios";
 import MyModal from "./UI/MyModal/MyModal";
-const Note = ({updateNotes, data, notes, setNotes}) => {
+const Note = ({data, notes, setNotes}) => {
     const img = "data:image/png;base64," + data.picture;
     const [editId, setEditId] = useState(null)
     const [modal, setModal] = useState(false)
@@ -25,7 +25,7 @@ const Note = ({updateNotes, data, notes, setNotes}) => {
 
     function removeNote(id) {
         deleteNote(id)
-        updateNotes(id)
+        setNotes(notes.filter(note=> note.id!==id))
     }
 
     async function editNote(e) {
