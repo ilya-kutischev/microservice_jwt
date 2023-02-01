@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import Note from "./Note";
 import '../styles/User.css'
 import axios from "axios";
@@ -12,8 +12,6 @@ const NoteList = ({token}) => {
     const [newNote, setNewNote] = useState({title: '', description: ''})
     const [picture, setPicture] = useState('')
     const [mySelect, setMySelect] = useState('Upload file')
-    const [canvas, setCanvas] = useState(false)
-
     const getNotes = async (tok) => {
         try {
             axios.defaults.headers.common['Authorization'] = "Bearer " + tok;
@@ -34,6 +32,11 @@ const NoteList = ({token}) => {
 
     async function addNote(e) {
         e.preventDefault()
+        if (picture==='') {
+            console.log("no picture")
+            return;
+        }
+
         try {
             const response = await axios.post('http://localhost:8000/user/notes',
                 {picture},
@@ -44,17 +47,10 @@ const NoteList = ({token}) => {
 
             setNotes([...notes, response.data.message])
             setNewNote({title: '', description: ''})
+            setMySelect("Upload file")
         } catch (e) {
             console.log(e)
         }
-    }
-
-    useEffect(()=>{
-        console.log(mySelect)
-    },[mySelect])
-
-    const getPicture = (data) =>  {
-        data.then(res => setPicture(res));
     }
 
     return (
@@ -73,19 +69,20 @@ const NoteList = ({token}) => {
                     onChange={(e)=> setNewNote({...newNote, description: e.target.value})}/>
                 </label>
                 <select value={mySelect} onChange={e => {
-                    setMySelect(e.target.value)}
+                    setMySelect(e.target.value);
+                    setPicture('')}
                 }>
                     <option>Upload file</option>
                     <option>Draw now</option>
-                </select>
+                </select >
                 {
                     mySelect==="Upload file"
                     ?
                         <label>
                             <input type="file"
-                            onChange={(e)=> setPicture(e.target.files[0])}/>
+                                onChange={(e)=> setPicture(e.target.files[0])}/>
                         </label>
-                    : <Canvas getPicture={getPicture} />
+                    : <Canvas setPicture={setPicture} />
                 }
                 {/*<MyModal visible={canvas} setVisible={setCanvas}>*/}
                 {/*    <Canvas/>*/}
