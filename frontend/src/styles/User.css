@@ -3,13 +3,48 @@
 
 .user {
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
     border: 2px solid var(--color1);
     border-radius: 5px;
     padding-left: 10px;
-    margin: 5px;
+    margin: 5px 0;
 }
 
 .open-btn {
     margin: 10px;
+}
+
+.notes {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.note {
+    background-color: lightgoldenrodyellow;
+    margin: 10px;
+    padding: 0 15px;
+}
+
+
+.image__container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+}
+#image {
+    width: 80%;
+   border: 1px solid black;
+}
+
+
+.edit-delete {
+    display: flex;
+    gap: 10px;
+}
+
+.draw-btn {
+    margin: 0 20px;
 }

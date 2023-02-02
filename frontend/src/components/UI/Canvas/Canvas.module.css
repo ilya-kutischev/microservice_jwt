@@ -1,0 +1,17 @@
+.wrapper {
+    border: 2px solid black;
+    margin-bottom: 10px;
+}
+
+.canvas {
+    border: 1px solid black;
+    padding-bottom: 40px;
+    margin: 20px
+}
+
+.btns {
+    margin:10px;
+    display: flex;
+    gap: 10px;
+
+}

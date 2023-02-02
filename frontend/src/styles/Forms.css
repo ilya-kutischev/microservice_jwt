@@ -19,7 +19,6 @@ input {
 }
 
 .form-btn {
-    width: 20%;
     margin: 5px 0 0 0;
     height: 30px;
 }
@@ -32,7 +31,7 @@ input {
     padding-bottom: 10px;
 }
 
-.login-message {
+.message {
     margin: 0;
     padding-top: 10px;
 }
