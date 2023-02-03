@@ -16,9 +16,37 @@ const SignInForm = ({signin}) => {
     const navigate = useNavigate()
 
 
+    const validateEmail = (email) => {
+        if (email==='') {
+            return false
+        }
+        return true;
+    }
+    const validatePassword = (pass) => {
+        if (pass==='') {
+            return false
+        }
+        return true;
+    }
 
+
+    const validateForm = () => {
+        if (!validateEmail(user.email)) {
+            return {status : false, message: 'bad email'}
+        }
+        if (!validatePassword(user.password)) {
+            return {status : false, message: 'bad password'}
+        }
+        return {status: true}
+    }
     const signInUser = async (e) => {
         e.preventDefault();
+        const validation = validateForm()
+        console.log(validation)
+        if (!validation.status) {
+            setError(validation.message)
+            return;
+        }
         setMessage('')
         try {
             const response = await axios.post('http://localhost:8000/token', user,
