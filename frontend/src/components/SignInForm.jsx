@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import '../styles/Forms.css'
 import axios from "axios";
+import {useNavigate} from "react-router-dom";
 
 
 const SignInForm = ({signin}) => {
@@ -10,6 +11,12 @@ const SignInForm = ({signin}) => {
         'password': ''
     })
     const [message, setMessage] = useState('')
+
+
+    const navigate = useNavigate()
+
+
+
     const signInUser = async (e) => {
         e.preventDefault();
         setMessage('')
@@ -22,6 +29,8 @@ const SignInForm = ({signin}) => {
             console.log(response)
             signin(response.data.access_token)
             setSuccess()
+            navigate('/')
+
         } catch (er) {
             console.log(er)
             setError(er.response.data.detail)

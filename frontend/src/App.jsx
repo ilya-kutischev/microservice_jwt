@@ -6,6 +6,11 @@ import './styles/Forms.css'
 import './styles/App.css'
 import UserDetail from "./components/UserDetail";
 import NoteList from "./components/NoteList";
+import {BrowserRouter, Route, Routes} from 'react-router-dom'
+import NotesPage from "./pages/NotesPage";
+import SignUpPage from "./pages/SignUpPage";
+import SignInPage from "./pages/SignInPage";
+import Header from "./components/Header";
 
 function App() {
     const cookies = new Cookies();
@@ -27,22 +32,31 @@ function App() {
     }
 
     return (
-        <div className='app'>
-            <div className='forms'>
-                <SignUpForm addUser={addNewUser}/>
-                {
-                    token
-                    ? <UserDetail signout={signout}/>
-                    : <SignInForm signin={signin}/>
-                }
-            </div>
-            {token
-                ? <NoteList token={token}/>
-                : <h3>Not authenticated</h3>
-            }
-
-            {/*<UserList users={users} setUsers={setUsers} token={token}/>*/}
+        <div>
+            <BrowserRouter>
+                <Header token={token} signout={signout}></Header>
+                <Routes>
+                    <Route path='' element={<NotesPage token={token}/>}/>
+                    <Route path='/signup' element={<SignUpPage addUser={addNewUser}/>}/>
+                    <Route path='/signin' element={<SignInPage signin={signin}/>}/>
+                    <Route path='*' element={<NotesPage token={token}/>}/>
+                </Routes>
+            </BrowserRouter>
         </div>
+        // <div className='app'>
+        //     <div className='forms'>
+        //         <SignUpForm addUser={addNewUser}/>
+        //         {
+        //             token
+        //             ? <UserDetail signout={signout}/>
+        //             : <SignInForm signin={signin}/>
+        //         }
+        //     </div>
+        //     {token
+        //         ? <NoteList token={token}/>
+        //         : <h3>Not authenticated</h3>
+        //     }
+        // </div>
     );
 
 }
