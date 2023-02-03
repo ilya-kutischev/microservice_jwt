@@ -6,7 +6,6 @@ const Header = ({token, signout}) => {
 
     const navigate = useNavigate()
     const info = useLocation()
-    const [toggleBtn, setToggleBtn] = useState('')
 
     const [user, setUser] = useState({})
     const getUser = async () => {
@@ -19,7 +18,6 @@ const Header = ({token, signout}) => {
     }
 
     useEffect(() => {
-        setToggleBtn(info.pathname)
         if (token!=='') {
             getUser()
         }
@@ -28,19 +26,16 @@ const Header = ({token, signout}) => {
     function handleSignUp(e) {
         e.preventDefault();
         navigate('/signup')
-        setToggleBtn('/signup')
     }
     function handleSignIn(e) {
         e.preventDefault();
         navigate('/signin')
-        setToggleBtn('/signin')
     }
 
     function handleSignOut(e) {
         e.preventDefault();
         signout()
         navigate('/signin')
-        setToggleBtn('/signin')
     }
 
 
@@ -58,16 +53,21 @@ const Header = ({token, signout}) => {
                     </div>
                 :
                     <div className='not-auth'>
-                        {/*{*/}
-                        {/*    toggleBtn==='/signin'*/}
-                        {/*    ?  <div className='signup'>*/}
-                        {/*            <button className='signup-btn' onClick={handleSignUp}>Sign up</button>*/}
-                        {/*       </div>*/}
-                        {/*    :  <div className='signin'>*/}
-                        {/*            <button className='signin-btn' onClick={handleSignIn}>Sign in</button>*/}
-                        {/*       </div>*/}
-                        {/*}*/}
                         Not authorized
+                        {
+                            info.pathname==='/'
+                            ?
+                                <div className='not-auth'>
+                                    <div className='signup'>
+                                        <button className='signup-btn' onClick={handleSignUp}>Sign up</button>
+                                    </div>
+                                    <div className='signin'>
+                                        <button className='signin-btn' onClick={handleSignIn}>Sign in</button>
+                                    </div>
+                                </div>
+
+                            : null
+                        }
                     </div>
             }
 

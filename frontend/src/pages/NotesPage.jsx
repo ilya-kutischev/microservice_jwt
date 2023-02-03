@@ -6,7 +6,7 @@ const NotesPage = ({token}) => {
         <div>
             {token
                 ? <NoteList token={token}/>
-                : <h3>Not authenticated</h3>
+                : null
             }
         </div>
     );
