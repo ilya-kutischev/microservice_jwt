@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import '../styles/Forms.css'
 import axios from "axios";
+import {Link} from 'react-router-dom'
 
 const SignUpForm = ({addUser}) => {
     const success = 'successfull signup';
@@ -52,6 +53,10 @@ const SignUpForm = ({addUser}) => {
                     onClick={signUpUser}
                 >Sign up</button>
                 <p className='message' style={{color: message===success ? 'green': 'red'}}>{message}</p>
+            </div>
+            <div className='toggle-form'>
+                <p>Have an account?</p>
+                <Link to='/signin'>Sign in</Link>
             </div>
         </form>
     );

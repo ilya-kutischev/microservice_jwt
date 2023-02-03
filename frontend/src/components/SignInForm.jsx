@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import '../styles/Forms.css'
 import axios from "axios";
-import {useNavigate} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 
 
 const SignInForm = ({signin}) => {
@@ -58,6 +58,7 @@ const SignInForm = ({signin}) => {
             <label>
                 Password:
                 <input
+                    required
                     type="password"
                     value={user.password}
                     onChange={(e) => setUser({...user, password: e.target.value})}
@@ -69,6 +70,10 @@ const SignInForm = ({signin}) => {
                     onClick={signInUser}
                 >Sign in</button>
                 <p className='message' style={{color: message===success ? 'green': 'red'}}>{message}</p>
+            </div>
+            <div className='toggle-form'>
+                <p>No account?</p>
+                <Link to='/signup'>Sign up</Link>
             </div>
         </form>
     );

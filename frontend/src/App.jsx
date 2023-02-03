@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import Cookies from 'universal-cookie';
 import SignInForm from "./components/SignInForm";
 import SignUpForm from "./components/SignUpForm";
-import './styles/Forms.css'
+// import './styles/Forms.css'
 import './styles/App.css'
 import UserDetail from "./components/UserDetail";
 import NoteList from "./components/NoteList";
@@ -32,15 +32,18 @@ function App() {
     }
 
     return (
-        <div>
+        <div className='page'>
             <BrowserRouter>
                 <Header token={token} signout={signout}></Header>
-                <Routes>
-                    <Route path='' element={<NotesPage token={token}/>}/>
-                    <Route path='/signup' element={<SignUpPage addUser={addNewUser}/>}/>
-                    <Route path='/signin' element={<SignInPage signin={signin}/>}/>
-                    <Route path='*' element={<NotesPage token={token}/>}/>
-                </Routes>
+                <div className='main__content'>
+                    <Routes>
+                        <Route path='' element={<NotesPage token={token}/>}/>
+                        <Route path='/signup' element={<SignUpPage addUser={addNewUser}/>}/>
+                        <Route path='/signin' element={<SignInPage signin={signin}/>}/>
+                        <Route path='*' element={<NotesPage token={token}/>}/>
+                    </Routes>
+                </div>
+
             </BrowserRouter>
         </div>
         // <div className='app'>

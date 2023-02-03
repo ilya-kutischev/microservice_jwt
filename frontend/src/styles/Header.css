@@ -1,7 +1,29 @@
 .header {
-    border-bottom: 2px solid var(--color1);
+    /*background-color: lightblue;*/
+    border-bottom: 2px solid black;
     width: 100%;
-    margin: 0;
     padding: 0;
-    height: 50px;
+    height: 100px;
+    margin: 0 0 40px;
+
+}
+
+.not-auth {
+    display: flex;
+    flex-direction: row;
+    justify-content: right;
+    margin-right: 20px;
+    gap: 20px;
+    height: 100%;
+    align-items: center;
+}
+
+.auth {
+    display: flex;
+    flex-direction: row;
+    justify-content: right;
+    margin-right: 20px;
+    gap: 20px;
+    height: 100%;
+    align-items: center;
 }

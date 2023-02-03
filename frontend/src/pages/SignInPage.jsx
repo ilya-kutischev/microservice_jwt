@@ -3,8 +3,9 @@ import SignInForm from "../components/SignInForm";
 
 const SignInPage = ({signin}) => {
     return (
-        <div>
-            < SignInForm signin={signin}/>
+        <div className='form__wrapper'>
+            <h3>Sign In</h3>
+            <SignInForm signin={signin}/>
         </div>
     );
 };

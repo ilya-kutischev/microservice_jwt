@@ -1,5 +1,8 @@
 * {
-    --color1: #49c5b6
+    --color1: #E9F1FA;
+    --color2: #2272FF;
+    --color3: #FFFFFF;
+    --color4: #414770;
 }
 
 .app {
@@ -10,16 +13,6 @@
 }
 
 
-.signout-btn {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: auto;
-    width: 80px;
-    height: 50px;
-    font-weight: bold;
-}
-
 .signed-user {
     display: flex;
     /*justify-content: center;*/
@@ -29,3 +22,4 @@
     margin: 20px;
     padding: 10px;
 }
+
