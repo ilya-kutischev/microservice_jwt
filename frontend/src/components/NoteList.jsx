@@ -3,6 +3,7 @@ import Note from "./Note";
 import '../styles/User.css'
 import axios from "axios";
 import Canvas from "./UI/Canvas/Canvas";
+import YesNoBox from "./UI/YesNoBox/YesNoBox";
 
 const NoteList = ({token}) => {
     const [notes, setNotes] = useState([])
@@ -52,7 +53,7 @@ const NoteList = ({token}) => {
     }
 
     return (
-        <div className='notes'>
+        <div className='notes__container'>
             <form encType="multipart/form-data" className='note-form'>
                 <label>
                     Title:
@@ -84,11 +85,13 @@ const NoteList = ({token}) => {
                 }
                 <button onClick={(e) => addNote(e)}>Create</button>
             </form>
-            {
-                notes.length
-                ? notes.map(note => <Note notes={notes} setNotes={setNotes} key={note.id} data={note}/>)
-                    : <h3>You don't have any notes yet</h3>
-            }
+            <div className='notes'>
+                {
+                    notes.length
+                    ? notes.map(note => <Note notes={notes} setNotes={setNotes} key={note.id} data={note}/>)
+                        : <h3>You don't have any notes yet</h3>
+                }
+            </div>
         </div>
     );
 };

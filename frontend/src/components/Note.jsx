@@ -2,12 +2,14 @@ import React, {useState} from 'react';
 import '../styles/User.css'
 import axios from "axios";
 import MyModal from "./UI/MyModal/MyModal";
+import YesNoBox from "./UI/YesNoBox/YesNoBox";
 
 const Note = ({data, notes, setNotes}) => {
     const img = "data:image/png;base64," + data.picture;
     const [editId, setEditId] = useState(null)
     const [modal, setModal] = useState(false)
     const [currentNote, setCurrentNote] = useState({title: data.title, description: data.description})
+    const [yesNo, setYesNo] = useState(true)
 
     function openEditForm(id) {
         setEditId(id)
@@ -15,12 +17,13 @@ const Note = ({data, notes, setNotes}) => {
     }
 
     async function deleteNote(id) {
-        try {
-            const response = await axios.delete('http://localhost:8000/user/notes?note_id=' + id)
-            console.log(response.status===200 ? 'Success' : "smth went wrong")
-        } catch (e) {
-            console.log(e)
-        }
+        console.log("123123")
+        // try {
+        //     const response = await axios.delete('http://localhost:8000/user/notes?note_id=' + id)
+        //     console.log(response.status===200 ? 'Success' : "smth went wrong")
+        // } catch (e) {
+        //     console.log(e)
+        // }
     }
 
     function removeNote(id) {
@@ -44,8 +47,14 @@ const Note = ({data, notes, setNotes}) => {
         }
     }
 
+    function deleteCheck(id) {
+        setYesNo(true)
+        // removeNote(id)
+    }
+
     return (
         <div className='note'>
+            <YesNoBox visible={yesNo} setVisible={setYesNo}/>
             <MyModal visible={modal} setVisible={setModal}>
                 <form className='edit-note-form'>
                     <label>
@@ -68,7 +77,7 @@ const Note = ({data, notes, setNotes}) => {
             </h3>
             <div className='edit-delete'>
                 <button onClick={() => openEditForm(data.id)}>Edit</button>
-                <button onClick={() => removeNote(data.id)}>Delete</button>
+                <button onClick={() => deleteCheck(data.id)}>Delete</button>
             </div>
             <h4>
                 {data.description}
