@@ -2,73 +2,65 @@ import React, {useState} from 'react';
 import '../styles/User.css'
 import axios from "axios";
 import MyModal from "./UI/MyModal/MyModal";
-import YesNoBox from "./UI/YesNoBox/YesNoBox";
 
 const Note = ({data, notes, setNotes}) => {
     const img = "data:image/png;base64," + data.picture;
-    const [editId, setEditId] = useState(null)
     const [modal, setModal] = useState(false)
-    const [currentNote, setCurrentNote] = useState({title: data.title, description: data.description})
-    const [yesNo, setYesNo] = useState(true)
-
-    function openEditForm(id) {
-        setEditId(id)
-        setModal(true)
-    }
-
-    async function deleteNote(id) {
-        console.log("123123")
-        // try {
-        //     const response = await axios.delete('http://localhost:8000/user/notes?note_id=' + id)
-        //     console.log(response.status===200 ? 'Success' : "smth went wrong")
-        // } catch (e) {
-        //     console.log(e)
-        // }
-    }
-
-    function removeNote(id) {
-        deleteNote(id)
-        setNotes(notes.filter(note=> note.id!==id))
-    }
+    const [currentNote, setCurrentNote] = useState({title: '', description: ''})
 
     async function editNote(e) {
-        const params = {note_id: editId, ...currentNote}
         e.preventDefault()
         try {
+            const editId = currentNote.id
+            delete currentNote.id
             await axios.put('http://localhost:8000/user/notes',
                 null,
                 {
-                    params: params
+                    params: {...currentNote, note_id: editId}
                 })
             setModal(false)
-            setNotes(notes.map(note => note.id===editId ? {...note, ...currentNote} : note))
+            setNotes(notes.map(note => note.id === editId ? {...note, ...currentNote} : note))
         } catch (e) {
             console.log(e)
         }
     }
 
-    function deleteCheck(id) {
-        setYesNo(true)
-        // removeNote(id)
+    function openEditForm(data) {
+        setCurrentNote(data)
+        setModal(true)
+    }
+
+    async function deleteNote(id) {
+        console.log("123123")
+        try {
+            const response = await axios.delete('http://localhost:8000/user/notes?note_id=' + id)
+            console.log(response.status === 200 ? 'Success' : "smth went wrong")
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
+    function removeNote(id) {
+        deleteNote(id)
+        setNotes(notes.filter(note => note.id !== id))
     }
 
     return (
         <div className='note'>
-            <YesNoBox visible={yesNo} setVisible={setYesNo}/>
             <MyModal visible={modal} setVisible={setModal}>
                 <form className='edit-note-form'>
                     <label>
                         Title:
                         <input type="text"
-                        value={currentNote.title}
-                        onChange={(e) => setCurrentNote({...currentNote, title: e.target.value})}/>
+                               value={currentNote.title}
+                               onChange={(e) => setCurrentNote({...currentNote, title: e.target.value})}/>
                     </label>
                     <label>
                         Description:
                         <input type="text"
-                        value={currentNote.description}
-                        onChange={(e)=> setCurrentNote({...currentNote, description: e.target.value})}/>
-                </label>
+                               value={currentNote.description}
+                               onChange={(e) => setCurrentNote({...currentNote, description: e.target.value})}/>
+                    </label>
                     <button onClick={e => editNote(e)}>Edit</button>
                 </form>
             </MyModal>
@@ -76,8 +68,10 @@ const Note = ({data, notes, setNotes}) => {
                 {data.id}. {data.title}
             </h3>
             <div className='edit-delete'>
-                <button onClick={() => openEditForm(data.id)}>Edit</button>
-                <button onClick={() => deleteCheck(data.id)}>Delete</button>
+                <button
+                    onClick={() => openEditForm({id: data.id, title: data.title, description: data.description})}>Edit
+                </button>
+                <button onClick={() => removeNote(data.id)}>Delete</button>
             </div>
             <h4>
                 {data.description}

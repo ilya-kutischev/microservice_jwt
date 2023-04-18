@@ -3,7 +3,7 @@ import Note from "./Note";
 import '../styles/User.css'
 import axios from "axios";
 import Canvas from "./UI/Canvas/Canvas";
-import YesNoBox from "./UI/YesNoBox/YesNoBox";
+import MyModal from "./UI/MyModal/MyModal";
 
 const NoteList = ({token}) => {
     const [notes, setNotes] = useState([])
@@ -31,17 +31,16 @@ const NoteList = ({token}) => {
 
     async function addNote(e) {
         e.preventDefault()
-        if (picture==='') {
+        if (picture === '') {
             console.log("no picture")
             return;
         }
-
         try {
             const response = await axios.post('http://localhost:8000/user/notes',
                 {picture},
                 {
                     params: newNote,
-                headers: {"Content-Type": "multipart/form-data; boundary=----WebKitFormBoundarylYOPyhSdQzPwOOlB"}
+                    headers: {"Content-Type": "multipart/form-data; boundary=----WebKitFormBoundarylYOPyhSdQzPwOOlB"}
                 })
 
             setNotes([...notes, response.data.message])
@@ -58,37 +57,42 @@ const NoteList = ({token}) => {
                 <label>
                     Title:
                     <input type="text"
-                    value={newNote.title}
-                    onChange={(e) => setNewNote({...newNote, title: e.target.value})}/>
+                           value={newNote.title}
+                           onChange={(e) => setNewNote({...newNote, title: e.target.value})}/>
                 </label>
                 <label>
                     Description:
                     <input type="text"
-                    value={newNote.description}
-                    onChange={(e)=> setNewNote({...newNote, description: e.target.value})}/>
+                           value={newNote.description}
+                           onChange={(e) => setNewNote({...newNote, description: e.target.value})}/>
                 </label>
                 <select value={mySelect} onChange={e => {
                     setMySelect(e.target.value);
-                    setPicture('')}
+                    setPicture('')
+                }
                 }>
                     <option>Upload file</option>
                     <option>Draw now</option>
-                </select >
+                </select>
                 {
-                    mySelect==="Upload file"
-                    ?
+                    mySelect === "Upload file"
+                        ?
                         <label>
                             <input type="file"
-                                onChange={(e)=> setPicture(e.target.files[0])}/>
+                                   onChange={(e) => setPicture(e.target.files[0])}/>
                         </label>
-                    : <Canvas setPicture={setPicture} />
+                        : <Canvas setPicture={setPicture}/>
                 }
                 <button onClick={(e) => addNote(e)}>Create</button>
             </form>
             <div className='notes'>
                 {
                     notes.length
-                    ? notes.map(note => <Note notes={notes} setNotes={setNotes} key={note.id} data={note}/>)
+                        ? notes.map(note =>
+                            <Note notes={notes}
+                                  setNotes={setNotes}
+                                  key={note.id}
+                                  data={note}/>)
                         : <h3>You don't have any notes yet</h3>
                 }
             </div>
